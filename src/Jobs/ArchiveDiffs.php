@@ -18,38 +18,15 @@ use TheTurk\Diff\Repositories\DiffArchiveRepository;
 class ArchiveDiffs
 {
     /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var LoggerInterface
-     */
-    protected $log;
-
-    /**
-     * @var DiffArchiveRepository
-     */
-    protected $diffArchive;
-
-    /**
      * @var bool
      */
     protected $revLimit;
 
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param DiffArchiveRepository       $diffArchive
-     */
     public function __construct(
-        SettingsRepositoryInterface $settings,
-        LoggerInterface $log,
-        DiffArchiveRepository $diffArchive
+        protected SettingsRepositoryInterface $settings,
+        protected LoggerInterface $log,
+        protected DiffArchiveRepository $diffArchive
     ) {
-        $this->settings = $settings;
-        $this->log = $log;
-        $this->diffArchive = $diffArchive;
-
         // this is the A value
         $this->revLimit = self::sanitizeFloat(
             $settings->get('the-turk-diff.archiveLimit', 15)

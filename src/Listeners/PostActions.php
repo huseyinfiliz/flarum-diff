@@ -14,38 +14,12 @@ use TheTurk\Diff\Models\Diff;
 class PostActions
 {
     /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var ExtensionManager
-     */
-    private $extensions;
-
-    /**
-     * @var ArchiveDiffs
-     */
-    protected $job;
-
-    /**
      * @var string
      */
     private static $oldContent = '';
 
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param ExtensionManager            $extensions
-     * @param ArchiveDiffs                $job
-     */
-    public function __construct(
-        SettingsRepositoryInterface $settings,
-        ExtensionManager $extensions,
-        ArchiveDiffs $job
-    ) {
-        $this->settings = $settings;
-        $this->extensions = $extensions;
-        $this->job = $job;
+    public function __construct(protected SettingsRepositoryInterface $settings, private ExtensionManager $extensions, protected ArchiveDiffs $job)
+    {
     }
 
     /**

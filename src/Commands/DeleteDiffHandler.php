@@ -10,26 +10,8 @@ use TheTurk\Diff\Repositories\DiffArchiveRepository;
 
 class DeleteDiffHandler
 {
-    /**
-     * @var \Flarum\Post\PostRepository
-     */
-    protected $posts;
-
-    /**
-     * @var DiffArchiveRepository
-     */
-    protected $diffArchive;
-
-    /**
-     * @param PostRepository        $posts
-     * @param DiffArchiveRepository $diffArchive
-     */
-    public function __construct(
-        PostRepository $posts,
-        DiffArchiveRepository $diffArchive
-    ) {
-        $this->posts = $posts;
-        $this->diffArchive = $diffArchive;
+    public function __construct(protected PostRepository $posts, protected DiffArchiveRepository $diffArchive)
+    {
     }
 
     /*

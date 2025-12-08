@@ -9,17 +9,8 @@ use TheTurk\Diff\Models\Diff;
 
 class SerializeDiffsOnPosts
 {
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @param ExtensionManager $extensions
-     */
-    public function __construct(ExtensionManager $extensions)
+    public function __construct(protected ExtensionManager $extensions)
     {
-        $this->extensions = $extensions;
     }
 
     /**

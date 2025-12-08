@@ -27,24 +27,8 @@ class ListDiffController extends AbstractListController
      */
     public $limit = 10;
 
-    /**
-     * @var DiffRepository
-     */
-    protected $diff;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param DiffRepository $diff
-     * @param UrlGenerator   $url
-     */
-    public function __construct(DiffRepository $diff, UrlGenerator $url)
+    public function __construct(protected DiffRepository $diff, protected UrlGenerator $url)
     {
-        $this->diff = $diff;
-        $this->url = $url;
     }
 
     /**

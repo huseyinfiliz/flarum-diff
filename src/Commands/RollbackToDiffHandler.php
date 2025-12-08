@@ -12,34 +12,8 @@ use TheTurk\Diff\Repositories\DiffArchiveRepository;
 
 class RollbackToDiffHandler
 {
-    /**
-     * @var \Flarum\Post\PostRepository
-     */
-    protected $posts;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    /**
-     * @var DiffArchiveRepository
-     */
-    protected $diffArchive;
-
-    /**
-     * @param PostRepository        $posts
-     * @param Dispatcher            $bus
-     * @param DiffArchiveRepository $diffArchive
-     */
-    public function __construct(
-        PostRepository $posts,
-        Dispatcher $bus,
-        DiffArchiveRepository $diffArchive
-    ) {
-        $this->posts = $posts;
-        $this->bus = $bus;
-        $this->diffArchive = $diffArchive;
+    public function __construct(protected PostRepository $posts, protected Dispatcher $bus, protected DiffArchiveRepository $diffArchive)
+    {
     }
 
     /*

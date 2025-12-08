@@ -17,17 +17,8 @@ class RollbackToDiffController extends AbstractShowController
      */
     public $serializer = DiffSerializer::class;
 
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    /**
-     * @param Dispatcher $bus
-     */
-    public function __construct(Dispatcher $bus)
+    public function __construct(protected Dispatcher $bus)
     {
-        $this->bus = $bus;
     }
 
     protected function data(ServerRequestInterface $request, Document $document)

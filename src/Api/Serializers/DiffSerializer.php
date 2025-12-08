@@ -16,50 +16,8 @@ use TheTurk\Diff\Repositories\DiffArchiveRepository;
 
 class DiffSerializer extends AbstractSerializer
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var CommentPost
-     */
-    protected $commentPost;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @var DiffArchiveRepository
-     */
-    protected $diffArchive;
-
-    /**
-     * @var Translator
-     */
-    protected $translator;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param CommentPost                 $commentPost
-     * @param ExtensionManager            $extensions
-     * @param TranslatorInterface         $translator
-     * @param DiffArchiveRepository       $diffArchive
-     */
-    public function __construct(
-        SettingsRepositoryInterface $settings,
-        CommentPost $commentPost,
-        ExtensionManager $extensions,
-        TranslatorInterface $translator,
-        DiffArchiveRepository $diffArchive
-    ) {
-        $this->settings = $settings;
-        $this->commentPost = $commentPost;
-        $this->extensions = $extensions;
-        $this->translator = $translator;
-        $this->diffArchive = $diffArchive;
+    public function __construct(protected SettingsRepositoryInterface $settings, protected CommentPost $commentPost, protected ExtensionManager $extensions, protected TranslatorInterface $translator, protected DiffArchiveRepository $diffArchive)
+    {
     }
 
     /**

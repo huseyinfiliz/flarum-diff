@@ -30,12 +30,7 @@ class Diff extends AbstractModel
      */
     protected $table = 'post_edit_histories';
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['created_at', 'deleted_at', 'rollbacked_at'];
+    protected $casts = ['created_at' => 'datetime', 'deleted_at' => 'datetime', 'rollbacked_at' => 'datetime'];
 
     /**
      * @param $revision
