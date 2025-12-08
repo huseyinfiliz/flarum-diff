@@ -4,7 +4,7 @@ import Button from 'flarum/common/components/Button';
 import Tooltip from 'flarum/common/components/Tooltip';
 import username from 'flarum/common/helpers/username';
 import humanTime from 'flarum/common/helpers/humanTime';
-import avatar from 'flarum/common/helpers/avatar';
+import Avatar from 'flarum/common/components/Avatar';
 import extractText from 'flarum/common/utils/extractText';
 import redrawPost from '../utils/redrawPost';
 import Alert from 'flarum/common/components/Alert';
@@ -57,7 +57,7 @@ export default class DiffModal extends Modal {
   title() {
     return [
       // we also should consider deleted users here
-      this.attrs.listState.selectedItem.actor().username() ? avatar(this.attrs.listState.selectedItem.actor()) : '',
+      this.attrs.listState.selectedItem.actor().username() ? <Avatar user={this.attrs.listState.selectedItem.actor()} /> : '',
       this.attrs.listState.selectedItem.revision() != 0
         ? // x edited y ago
           app.translator.trans('the-turk-diff.forum.editedInfo', {

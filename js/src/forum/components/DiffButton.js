@@ -1,6 +1,6 @@
 import Button from 'flarum/common/components/Button';
-import avatar from 'flarum/common/helpers/avatar';
-import icon from 'flarum/common/helpers/icon';
+import Avatar from 'flarum/common/components/Avatar';
+import Icon from 'flarum/common/components/Icon';
 import username from 'flarum/common/helpers/username';
 import humanTime from 'flarum/common/helpers/humanTime';
 import extractText from 'flarum/common/utils/extractText';
@@ -64,13 +64,9 @@ export default class DiffButton extends Button {
 
     return [
       // we also should consider deleted users here
-      actor.username() ? avatar(actor) : '',
+      actor.username() ? <Avatar user={actor} /> : '',
       // does this button have an icon?
-      revision.deletedAt() && this.attrs.subButton === false
-        ? icon('fas fa-caret-down', {
-            className: 'Button-caret',
-          })
-        : '',
+      revision.deletedAt() && this.attrs.subButton === false ? <Icon name="fas fa-caret-down" className="Button-caret" /> : '',
       // button label
       <span className="Button-label" title={buttonText}>
         {revision.deletedAt() && this.attrs.subButton === true ? (

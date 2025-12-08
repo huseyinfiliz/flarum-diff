@@ -1,6 +1,6 @@
 import Dropdown from 'flarum/common/components/Dropdown';
 import DiffList from './DiffList';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 import DiffListState from '../states/DiffListState';
 
 /**
@@ -47,12 +47,7 @@ export default class DiffDropdown extends Dropdown {
   }
 
   getButtonContent() {
-    return [
-      icon(this.attrs.icon, {
-        className: 'Button-icon',
-      }),
-      <span className="Button-label">{this.attrs.label}</span>,
-    ];
+    return [<Icon name={this.attrs.icon} className="Button-icon" />, <span className="Button-label">{this.attrs.label}</span>];
   }
 
   getMenu() {
