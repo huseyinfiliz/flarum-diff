@@ -15,16 +15,16 @@
     & > li.Diff {
       display: block;
       padding: 0;
-      color: @muted-color;
+      color: var(--muted-color);
       overflow: hidden;
       text-decoration: none;
 
       &:hover {
-        background: lighten(@control-bg, 5%);
+        background: var(--control-bg-lighten-5);
       }
 
       &.active {
-        background: @control-bg;
+        background: var(--control-bg);
       }
 
       & > a,
@@ -34,7 +34,7 @@
         gap: 10px;
         align-items: center;
         width: 100%;
-        color: @text-color;
+        color: var(--text-color);
         border-radius: 0;
         border: 0;
         background: none;
@@ -78,7 +78,7 @@
         display: none;
 
         & > button {
-          color: @muted-color;
+          color: var(--muted-color);
           cursor: inherit;
           pointer-events: none;
           white-space: normal;
@@ -93,7 +93,7 @@
   }
 
   .DiffList-empty {
-    color: @muted-color;
+    color: var(--muted-color);
     text-align: center;
     padding: 35px 0;
     font-size: 16px;
@@ -102,4 +102,12 @@
   .loading-indicator {
     height: 70px;
   }
+}
+
+
+[data-theme^=light] {
+  --control-bg-lighten-5: lighten(@control-bg-light, 5%);
+}
+[data-theme^=dark] {
+  --control-bg-lighten-5: lighten(@control-bg-dark, 5%);
 }

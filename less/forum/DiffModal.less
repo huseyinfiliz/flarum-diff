@@ -6,7 +6,7 @@
 
   .Modal-header {
     text-align: left;
-    background: @control-bg;
+    background: var(--control-bg);
 
     .Avatar {
       margin: -2px 5px -2px -6px;
@@ -25,7 +25,7 @@
   }
 
   .Modal-body {
-    background: @body-bg;
+    background: var(--body-bg);
   }
 
   // the "Options" button
@@ -63,7 +63,7 @@
       // info about on-screen contents
       &.diff-grid-info .revisionInfo {
         padding: 10px 16px;
-        color: @control-color;
+        color: var(--control-color);
 
         // x Revisions
         & > h4 {
@@ -90,7 +90,7 @@
 
       // revision list
       &.diff-grid-revisions {
-        border-top: 1px solid @control-bg;
+        border-top: 1px solid var(--control-bg);
         position: relative;
 
         & .DiffList-container {
@@ -109,7 +109,7 @@
 
       // diff container
       &.diff-grid-diff {
-        border-right: 1px solid @control-bg;
+        border-right: 1px solid var(--control-bg);
         position: relative;
 
         .diffContents {
@@ -142,7 +142,7 @@
                 padding: 20px;
                 text-align: center;
                 font-size: 15px;
-                color: @control-color;
+                color: var(--control-color);
               }
             }
           }
@@ -177,7 +177,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: fade(@body-bg, 90%);
+    background: var(--body-bg-fade-90);
     display: -ms-flexbox;
     display: -webkit-box;
     display: flex;
@@ -187,7 +187,7 @@
     -ms-flex-pack: center;
     -webkit-box-pack: center;
     justify-content: center;
-    border-radius: @border-radius @border-radius 0 0;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
     z-index: 1010;
 
     &.LoadingIndicator-container--block {
@@ -208,7 +208,7 @@
 
     // this is a workaround for stripes on blank lines
     // https://stackoverflow.com/a/25689081/12866913
-    .diff-stripes(lighten(@control-bg, 4%), darken(@control-bg, 3%));
+    .diff-stripes(var(--control-bg-lighten-4), var(--control-bg-darken-3));
 
     th.sign,
     thead {
@@ -241,7 +241,7 @@
 
         .rep {
           border-left: 3px solid @diff-change-version-del-color-border;
-          background: @body-bg;
+          background: var(--body-bg);
         }
 
         .rep-del {
@@ -258,8 +258,8 @@
           .new,
           .old {
             border-left: 3px solid @diff-info-color-border;
-            background: @body-bg;
-            color: @muted-color;
+            background: var(--body-bg);
+            color: var(--muted-color);
           }
         }
 
@@ -305,7 +305,7 @@
 
       & > .diff-grid-item {
         &.diff-grid-info {
-          border-top: 1px solid @control-bg;
+          border-top: 1px solid var(--control-bg);
           -ms-grid-column: 2;
           -ms-grid-row: 3;
           grid-column: 2;
@@ -349,7 +349,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      top: @header-height-phone;
+      top: var(--header-height-phone);
 
       & > .diff-grid-item {
         &.diff-grid-info {
@@ -368,7 +368,7 @@
         }
 
         &.diff-grid-controls {
-          border-top: 1px solid @control-bg;
+          border-top: 1px solid var(--control-bg);
           -ms-grid-row: 3;
           grid-row: 3;
         }
@@ -377,10 +377,9 @@
 
     .Modal-header {
       // fix for username links
-      // on default Flarum theme
-      & when (@config-colored-header = true) {
+      // on default Flarum theme[data-colored-header=true] & {
         a {
-          color: @header-control-color;
+          color: var(--header-control-color);
         }
       }
 
@@ -391,4 +390,16 @@
       }
     }
   }
+}
+
+
+[data-theme^=light] {
+  --body-bg-fade-90: fade(@body-bg-light, 90%);
+  --control-bg-lighten-4: lighten(@control-bg-light, 4%);
+  --control-bg-darken-3: darken(@control-bg-light, 3%);
+}
+[data-theme^=dark] {
+  --body-bg-fade-90: fade(@body-bg-dark, 90%);
+  --control-bg-lighten-4: lighten(@control-bg-dark, 4%);
+  --control-bg-darken-3: darken(@control-bg-dark, 3%);
 }
