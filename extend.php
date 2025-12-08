@@ -21,6 +21,10 @@ use TheTurk\Diff\Api\Serializers\DiffSerializer;
 use TheTurk\Diff\Api\Serializers\SerializeDiffsOnPosts;
 use TheTurk\Diff\Console\ArchiveCommand;
 use TheTurk\Diff\Models\Diff;
+use Flarum\Api\Context;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 
 return [
     (new Extend\Routes('api'))
@@ -53,9 +57,11 @@ return [
                 ->appendOutputTo($paths->storage.(DIRECTORY_SEPARATOR.'logs'.DIRECTORY_SEPARATOR.'diff-archive-task.log'));
         }),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiSerializer(BasicPostSerializer::class))
         ->hasMany('diff', DiffSerializer::class),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiSerializer(PostSerializer::class))
         ->attributes(SerializeDiffsOnPosts::class),
 
@@ -64,4 +70,5 @@ return [
 
     (new Extend\User())
         ->registerPreference('diffRenderer', 'strval', 'sideBySide'),
+    new Extend\ApiResource(Api\Resource\DiffResource::class),
 ];
