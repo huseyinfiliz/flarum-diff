@@ -33,12 +33,12 @@ export default class DiffList extends Component {
                             ? // we're hovering on latest revision's button
                               app.translator.trans('the-turk-diff.forum.tooltips.mostRecent')
                             : item.revision() == 0
-                            ? // we're hovering on zeroth revision's button
-                              app.translator.trans('the-turk-diff.forum.tooltips.originalContent')
-                            : // we're hovering on other revision's button
-                              app.translator.trans('the-turk-diff.forum.tooltips.revisionWithNumber', {
-                                number: item.revision(),
-                              })
+                              ? // we're hovering on zeroth revision's button
+                                app.translator.trans('the-turk-diff.forum.tooltips.originalContent')
+                              : // we're hovering on other revision's button
+                                app.translator.trans('the-turk-diff.forum.tooltips.revisionWithNumber', {
+                                  number: item.revision(),
+                                })
                         }
                       >
                         {DiffButton.component({

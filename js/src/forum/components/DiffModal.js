@@ -193,15 +193,15 @@ export default class DiffModal extends Modal {
                       ? /* we're viewing the original content */
                         app.translator.trans('the-turk-diff.forum.rollbackToOriginalButton')
                       : this.attrs.listState.selectedItem.revision() == this.attrs.listState.post.revisionCount()
-                      ? this.comparisonBetween.old.revision != 0
-                        ? /* we're comparing this revision with current content. */
-                          app.translator.trans('the-turk-diff.forum.revertChangesButton')
-                        : /* we're comparing this revision with original content */
-                          app.translator.trans('the-turk-diff.forum.rollbackToOriginalButton')
-                      : /* we're comparing this revision with another revision */
-                        app.translator.trans('the-turk-diff.forum.rollbackButton', {
-                          number: this.attrs.listState.selectedItem.revision(),
-                        })
+                        ? this.comparisonBetween.old.revision != 0
+                          ? /* we're comparing this revision with current content. */
+                            app.translator.trans('the-turk-diff.forum.revertChangesButton')
+                          : /* we're comparing this revision with original content */
+                            app.translator.trans('the-turk-diff.forum.rollbackToOriginalButton')
+                        : /* we're comparing this revision with another revision */
+                          app.translator.trans('the-turk-diff.forum.rollbackButton', {
+                            number: this.attrs.listState.selectedItem.revision(),
+                          })
                   )
                 : ''}
 
@@ -464,23 +464,23 @@ export default class DiffModal extends Modal {
                   ? /* we're viewing differences between current content and {new} */
                     app.translator.trans('the-turk-diff.forum.differences.currentContent')
                   : this.comparisonBetween.old.revision == 0
-                  ? /* we're viewing differences between original content and {new} */
-                    app.translator.trans('the-turk-diff.forum.differences.originalContent')
-                  : /* we're viewing differences between revision X and {new} */
-                    app.translator.trans('the-turk-diff.forum.differences.revisionWithNumber', {
-                      number: this.comparisonBetween.old.revision,
-                    }),
+                    ? /* we're viewing differences between original content and {new} */
+                      app.translator.trans('the-turk-diff.forum.differences.originalContent')
+                    : /* we're viewing differences between revision X and {new} */
+                      app.translator.trans('the-turk-diff.forum.differences.revisionWithNumber', {
+                        number: this.comparisonBetween.old.revision,
+                      }),
               new:
                 this.comparisonBetween.new.revision == 0
                   ? /* we're viewing differences between {old} and original content */
                     app.translator.trans('the-turk-diff.forum.differences.originalContent')
                   : this.comparisonBetween.new.revision == this.attrs.listState.post.revisionCount()
-                  ? /* we're viewing differences between {old} and current content */
-                    app.translator.trans('the-turk-diff.forum.differences.currentContent')
-                  : /* we're viewing differences between {old} and revision X */
-                    app.translator.trans('the-turk-diff.forum.differences.revisionWithNumber', {
-                      number: this.comparisonBetween.new.revision,
-                    }),
+                    ? /* we're viewing differences between {old} and current content */
+                      app.translator.trans('the-turk-diff.forum.differences.currentContent')
+                    : /* we're viewing differences between {old} and revision X */
+                      app.translator.trans('the-turk-diff.forum.differences.revisionWithNumber', {
+                        number: this.comparisonBetween.new.revision,
+                      }),
             })
           )
         : extractText(
@@ -490,12 +490,12 @@ export default class DiffModal extends Modal {
                   ? /* we're previewing original content */
                     app.translator.trans('the-turk-diff.forum.previewMode.originalContent')
                   : this.comparisonBetween.new.revision == this.attrs.listState.post.revisionCount()
-                  ? /* we're previewing current content */
-                    app.translator.trans('the-turk-diff.forum.previewMode.currentContent')
-                  : /* we're previewing revision X */
-                    app.translator.trans('the-turk-diff.forum.previewMode.revisionWithNumber', {
-                      number: this.comparisonBetween.new.revision,
-                    }),
+                    ? /* we're previewing current content */
+                      app.translator.trans('the-turk-diff.forum.previewMode.currentContent')
+                    : /* we're previewing revision X */
+                      app.translator.trans('the-turk-diff.forum.previewMode.revisionWithNumber', {
+                        number: this.comparisonBetween.new.revision,
+                      }),
             })
           );
 
