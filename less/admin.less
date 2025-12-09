@@ -1,26 +1,41 @@
 .DiffSettingsPage {
   margin-top: 25px;
-}
-// exclamation marks for warnings
-// because i'm too lazy for sanitizing
-// values sent by admins. so...
-.diffSettingsIcon {
-  margin-right: 5px;
-}
 
-// this layout is for
-// A, m & b variable inputs
-.diffSettingsFlex {
-  display: -ms-flexbox;
-  display: -webkit-box;
-  display: flex;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -ms-flex-pack: justify;
-  -webkit-box-pack: justify;
-  justify-content: space-between;
-  -ms-flex-align: center;
-  -webkit-box-align: center;
-  align-items: center;
-  margin-bottom: 18px;
+  // Form grupları arası boşluk
+  .Form-group {
+    margin-bottom: 10px;
+  }
+
+  // Help text spacing
+  .helpText {
+    margin-bottom: 10px;
+  }
+
+  // Exclamation marks for warnings
+  .diffSettingsIcon {
+    margin-right: 5px;
+  }
+
+  // A, m & b variable inputs layout
+  .diffSettingsFlex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+    margin-top: 15px;
+
+    > div {
+      flex: 1;
+      min-width: 100px;
+      max-width: 150px;
+
+      .Form-group {
+        margin-bottom: 0;
+      }
+
+      .FormControl {
+        width: 100%;
+      }
+    }
+  }
 }

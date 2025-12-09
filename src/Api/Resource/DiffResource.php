@@ -308,7 +308,7 @@ class DiffResource extends AbstractDatabaseResource
             'detailLevel' => $this->settings->get('huseyinfiliz-diff.detailLevel', 'line'),
             'separateBlock' => (bool) $this->settings->get('huseyinfiliz-diff.separateBlock', true),
             'lineNumbers' => false,
-            'wrapperClasses' => ['TheTurkDiff', 'CustomDiff', 'diff-wrapper'],
+            'wrapperClasses' => ['HuseyinFilizDiff', 'CustomDiff', 'diff-wrapper'],
             'resultForIdenticals' => '<div class="noDiff"><p>' . $this->translator->trans('huseyinfiliz-diff.forum.noDiff') . '</p></div>',
             'mergeThreshold' => \HuseyinFiliz\Diff\Jobs\ArchiveDiffs::sanitizeFloat($this->settings->get('huseyinfiliz-diff.mergeThreshold', 0.8)),
         ];

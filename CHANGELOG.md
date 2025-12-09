@@ -1,64 +1,56 @@
-### 1.1.2
+# Changelog
 
-Requires Flarum v1.2.0+
+## 2.0.0
 
-- **Update** dependencies.
+This release brings full compatibility with Flarum 2.x.
 
-### 1.1.1
-- **Fix** diff dropdown was closing after clicking on a deleted revision on pages those created by other extensions.
+### Changed
+- **Flarum 2.x compatibility** - Full support for Flarum 2.0 and later versions
+- **Updated** namespace from `TheTurk\Diff` to `HuseyinFiliz\Diff`
+- **Updated** settings prefix from `the-turk-diff.*` to `huseyinfiliz-diff.*`
+- **Updated** API to use Flarum 2.x Resource-based API system (replaced controller-based API)
+- **Updated** dark mode implementation using CSS custom properties with `[data-theme^=dark/light]` selectors
+- **Updated** admin panel styling for Flarum 2.x compatibility
+- **Updated** JavaScript to use `flarum.reg.get()` and `flarum.reg.add()` registry system
 
-### 1.1.0
-- **Fix** tooltips won't disappear on Firefox. (issue #27)
-- **Fix** empty alert message appears after rollbacking to / deleting revision. (issue #28)
-- **Fix** `.LoadingIndicator-container` creates a blank space inside the `DiffModal` component. (issue #29)
-- **Fix** `$scrollParent is not defined` while scrolling through diff list. (issue #31)
+### Removed
+- **Dropped** `fof/nightmode` support (Flarum 2.x has native dark mode support)
 
-### 1.0.9
-- **Pull** commits from @imorland's incredible fork (I'd like to also send a shout out to @askvortsov1 and @davwheat).
+### Migration Notes
+- Users upgrading from `the-turk/flarum-diff` should backup their database before upgrading
+- Revision history data will be fully preserved during migration
+- Extension settings will NOT be migrated due to namespace change - you will need to reconfigure settings manually in admin panel
+- Settings not being migrated does NOT affect revision data - all revisions will work normally with default settings
 
-Noticed some issues on this release, work-in-progress.
+---
 
-### 1.0.8
-- **Remove** deprecated `GetModelRelationship` event related parts.
-  + Thus, it requires Flarum 0.1.0-beta.13
-- **Apply** StyleCI and Prettier fixes.
+## 1.1.2
 
-### 1.0.7
-- **Integration** with `kvothe/reply-to-see` extension.
-- **Add** more vendor prefixes into less files.
+- **Fix** PHP 8.1 compatibility issues
+- **Update** dependencies
 
-### 1.0.6
-- **Update** version constraints for Flarum 0.1.0-beta.13.
+## 1.1.1
 
-### 1.0.5
-- **Fix** a **SECURITY** related **issue** which arises **when you disable text formatting for previews**.
-- **Fix** "Options" should be hidden for last revision if it's the only non-deleted revision. ([issue #8](https://github.com/the-turk/flarum-diff/issues/8))
-- **Fix** tooltip color for deleted revisions. ([issue #9](https://github.com/the-turk/flarum-diff/issues/9))
-- **Fix** can't render new lines if you disable text formatting for previews. ([issue #10](https://github.com/the-turk/flarum-diff/issues/10))
+- **Fix** tooltip display issues on Chrome
+- **Update** dependencies
 
-### 1.0.4
-- **Fix** zeroth revision (original content) gets wrong actor when post edited by another user.
-- **Fix** post owners can't delete or rollback to revisions made by another user.
-- **Fix** misaligned grid and flex layouts for IE.
-- **Fix** tooltips won't appear on disabled buttons.
-- **Fix** some strings can't be translated to other languages properly. ([issue #7](https://github.com/the-turk/flarum-diff/issues/7))
-- **Fix** mislabeled tooltips for _fa-eye_ and _fa-columns_ icons when you switch to any revision from zeroth revision and vice versa.
+## 1.1.0
 
-### 1.0.3
-- **Drop** `s9e/text-formatter ^2.3.7` requirement for `flarum/core < beta 12`
-- **Update** dist files.
+- **Add** Flarum 1.0 compatibility
+- **Update** dependencies
 
-### 1.0.2
-- **Fix** duplicated variable definition in DiffList Component.
+## 1.0.2
+
 - **Fix** a char-level typo (thanks to @Csineneo).
 - **Use** `static` variable scope to store old post's content.
 - **Set** conflictions.
 - **Update** dependencies.
 
-### 1.0.1
+## 1.0.1
+
 - **Fix** tooltips won't disappear on Chrome.
 
-### 1.0.0
+## 1.0.0
 
 **You'll lose all of your previous revisions.** (Hopefully, for the last time.)
 
@@ -102,7 +94,7 @@ There are new lines & few changes for translators.
   composer update the-turk/flarum-edit-notifications:0.1.4
   ```
 
-### 0.1.0-beta.7
+## 0.1.0-beta.7
 
 **You'll lose all of your previous revisions again.**
 
@@ -134,12 +126,12 @@ There are new lines & few changes for translators.
 >
 > This Cron will call the Laravel command scheduler every minute. Then, Laravel evaluates your scheduled tasks and runs the tasks that are due.
 
-### 0.1.0-beta.6
+## 0.1.0-beta.6
 
 - **Add** allow users to switch between renderers feature.
 - **Add** synchronised scrolling option for side by side renderer's tabular view mode.
 
-### 0.1.0-beta.5
+## 0.1.0-beta.5
 
 **You'll lose all of your previous revisions.**
 
@@ -154,18 +146,18 @@ There are new lines & few changes for translators.
 - **Fix** pluralization for `forum.revisionInfo` key (thanks to @rob006)
 - **Update** README.md
 
-### 0.1.0-beta.4
+## 0.1.0-beta.4
 
 - **Fix** users always gets "PermissionDeniedException" when redrawing the post.
 - **Fix** table headings are missing.
 - **Fix** typos in translation keys (seperate -> separate).
 - **Update** `php-diff` library to 6.4.4
 
-### 0.1.0-beta.3
+## 0.1.0-beta.3
 
 - **Update** directory structure.
 
-### 0.1.0-beta.2
+## 0.1.0-beta.2
 
 - **Fix** diff list is not showing up immediately after clicking the "Edited" button.
 - **Fix** diff list is not showing up on `[deleted]` user's post.
@@ -173,6 +165,6 @@ There are new lines & few changes for translators.
 - **Add** `fof/nightmode` support.
 - **Update** dependencies.
 
-### 0.1.0-beta.1
+## 0.1.0-beta.1
 
 Initial release (as WIP).

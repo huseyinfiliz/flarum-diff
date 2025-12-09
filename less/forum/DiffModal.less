@@ -224,40 +224,40 @@
 
       .change {
         .old {
-          border-left: 3px solid @diff-old-version-bg-color-border;
+          border-left: 3px solid var(--diff-old-version-bg-color-border);
           // blank changes will be striped in SideBySide view
           &:not(.none) {
-            background: @diff-old-version-bg-color;
+            background: var(--diff-old-version-bg-color);
           }
         }
 
         .new {
-          border-left: 3px solid @diff-new-version-bg-color-border;
+          border-left: 3px solid var(--diff-new-version-bg-color-border);
           // blank changes will be striped in SideBySide view
           &:not(.none) {
-            background: @diff-new-version-bg-color;
+            background: var(--diff-new-version-bg-color);
           }
         }
 
         .rep {
-          border-left: 3px solid @diff-change-version-del-color-border;
+          border-left: 3px solid var(--diff-change-version-del-color-border);
           background: var(--body-bg);
         }
 
         .rep-del {
-          border-left: 3px solid @diff-change-version-del-color-border;
-          background: @diff-change-version-del-color;
+          border-left: 3px solid var(--diff-change-version-del-color-border);
+          background: var(--diff-change-version-del-color);
         }
 
         .rep-ins {
-          border-left: 3px solid @diff-change-version-ins-color-border;
-          background: @diff-change-version-ins-color;
+          border-left: 3px solid var(--diff-change-version-ins-color-border);
+          background: var(--diff-change-version-ins-color);
         }
 
         &.change-eq {
           .new,
           .old {
-            border-left: 3px solid @diff-info-color-border;
+            border-left: 3px solid var(--diff-info-color-border);
             background: var(--body-bg);
             color: var(--muted-color);
           }
@@ -267,7 +267,7 @@
           display: inline-block;
           margin-top: -1px;
           text-decoration: none;
-          background-color: @diff-new-version-ins-color;
+          background-color: var(--diff-new-version-ins-color);
           border-radius: 0.2em;
         }
 
@@ -275,14 +275,14 @@
           display: inline-block;
           margin-top: -1px;
           text-decoration: none;
-          background-color: @diff-old-version-del-color;
+          background-color: var(--diff-old-version-del-color);
           border-radius: 0.2em;
         }
 
         .new.none,
         .old.none,
         .rep.none {
-          border-left: 3px solid @diff-info-color-border;
+          border-left: 3px solid var(--diff-info-color-border);
         }
       }
     }

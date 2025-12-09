@@ -1,38 +1,29 @@
 // LESS variables for the diff extension.
 // Flarum 2.x uses CSS variables with [data-theme^=light/dark] selectors
 
-// Light mode colors (default)
-@diff-old-version-del-color: #ffb6ba;
-@diff-new-version-ins-color: #97f295;
-@diff-old-version-bg-color: #fee8e9;
-@diff-new-version-bg-color: #dfd;
-@diff-change-version-del-color: #fdf2d0;
-@diff-change-version-ins-color: #ded;
-@diff-info-color: #f8fafd;
+// Fallback LESS variables for functions like fade(), lighten(), darken()
+@body-bg-light: #fff;
+@body-bg-dark: #1b1b1b;
+@control-bg-light: #e8ecf3;
+@control-bg-dark: #2d2d2d;
 
-// Light mode borders
-@diff-old-version-bg-color-border: darken(@diff-old-version-bg-color, 25%);
-@diff-new-version-bg-color-border: darken(@diff-new-version-bg-color, 25%);
-@diff-change-version-del-color-border: darken(@diff-change-version-del-color, 25%);
-@diff-change-version-ins-color-border: darken(@diff-change-version-ins-color, 25%);
-@diff-info-color-border: darken(@diff-info-color, 25%);
-
-// Dark mode overrides
-[data-theme^=dark] {
-  --diff-old-version-del-color: #662222;
-  --diff-new-version-ins-color: #225522;
-  --diff-old-version-bg-color: #380000;
-  --diff-new-version-bg-color: #002800;
-  --diff-change-version-del-color: #430000;
-  --diff-change-version-ins-color: #003300;
-  --diff-info-color: #1b1b1b;
-  --diff-old-version-bg-color-border: #430000;
-  --diff-new-version-bg-color-border: #003300;
-  --diff-change-version-del-color-border: #4e0000;
-  --diff-change-version-ins-color-border: #003e00;
-  --diff-info-color-border: #272727;
+// Default/fallback (for initial load)
+:root {
+  --diff-old-version-del-color: #ffb6ba;
+  --diff-new-version-ins-color: #97f295;
+  --diff-old-version-bg-color: #fee8e9;
+  --diff-new-version-bg-color: #dfd;
+  --diff-change-version-del-color: #fdf2d0;
+  --diff-change-version-ins-color: #ded;
+  --diff-info-color: #f8fafd;
+  --diff-old-version-bg-color-border: #f9b0b4;
+  --diff-new-version-bg-color-border: #a6d9a6;
+  --diff-change-version-del-color-border: #f7db8a;
+  --diff-change-version-ins-color-border: #a6d9a6;
+  --diff-info-color-border: #c7d5e8;
 }
 
+// Light mode CSS custom properties
 [data-theme^=light] {
   --diff-old-version-del-color: #ffb6ba;
   --diff-new-version-ins-color: #97f295;
@@ -46,4 +37,20 @@
   --diff-change-version-del-color-border: #f7db8a;
   --diff-change-version-ins-color-border: #a6d9a6;
   --diff-info-color-border: #c7d5e8;
+}
+
+// Dark mode CSS custom properties
+[data-theme^=dark] {
+  --diff-old-version-del-color: #662222;
+  --diff-new-version-ins-color: #225522;
+  --diff-old-version-bg-color: #380000;
+  --diff-new-version-bg-color: #002800;
+  --diff-change-version-del-color: #430000;
+  --diff-change-version-ins-color: #003300;
+  --diff-info-color: #1b1b1b;
+  --diff-old-version-bg-color-border: #430000;
+  --diff-new-version-bg-color-border: #003300;
+  --diff-change-version-del-color-border: #4e0000;
+  --diff-change-version-ins-color-border: #003e00;
+  --diff-info-color-border: #272727;
 }
