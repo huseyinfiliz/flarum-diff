@@ -10,28 +10,16 @@
 
 namespace TheTurk\Diff;
 
-use Flarum\Api\Serializer\BasicPostSerializer;
-use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Api\Resource\PostResource;
+use Flarum\Api\Schema;
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Flarum\Post\Post;
 use Illuminate\Console\Scheduling\Event;
-use TheTurk\Diff\Api\Controllers;
-use TheTurk\Diff\Api\Serializers\DiffSerializer;
-use TheTurk\Diff\Api\Serializers\SerializeDiffsOnPosts;
 use TheTurk\Diff\Console\ArchiveCommand;
 use TheTurk\Diff\Models\Diff;
-use Flarum\Api\Context;
-use Flarum\Api\Endpoint;
-use Flarum\Api\Resource;
-use Flarum\Api\Schema;
 
 return [
-    (new Extend\Routes('api'))
-        ->get('/diff', 'diff.index', Controllers\ListDiffController::class)
-        ->delete('/diff/{id}', 'diff.delete', Controllers\DeleteDiffController::class)
-        ->post('/diff/{id}', 'diff.rollback', Controllers\RollbackToDiffController::class),
-
     (new Extend\Frontend('admin'))
         ->css(__DIR__.'/less/admin.less')
         ->js(__DIR__.'/js/dist/admin.js'),
@@ -57,18 +45,43 @@ return [
                 ->appendOutputTo($paths->storage.(DIRECTORY_SEPARATOR.'logs'.DIRECTORY_SEPARATOR.'diff-archive-task.log'));
         }),
 
-    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
-    (new Extend\ApiSerializer(BasicPostSerializer::class))
-        ->hasMany('diff', DiffSerializer::class),
-
-    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
-    (new Extend\ApiSerializer(PostSerializer::class))
-        ->attributes(SerializeDiffsOnPosts::class),
-
     (new Extend\Settings())
         ->serializeToForum('textFormattingForDiffPreviews', 'the-turk-diff.textFormatting', 'boolVal', true),
 
     (new Extend\User())
         ->registerPreference('diffRenderer', 'strval', 'sideBySide'),
+
+    // Register the Diff API Resource
     new Extend\ApiResource(Api\Resource\DiffResource::class),
+
+    // Extend Post resource with diff-related attributes and relationships
+    (new Extend\ApiResource(PostResource::class))
+        ->fields(fn () => [
+            Schema\Boolean::make('canViewEditHistory')
+                ->get(function ($post, $context) {
+                    return $context->getActor()->can('viewEditHistory');
+                }),
+            Schema\Boolean::make('canDeleteEditHistory')
+                ->get(function ($post, $context) {
+                    $actor = $context->getActor();
+                    $isSelf = $actor->id === $post->user_id;
+                    return $actor->can('deleteEditHistory')
+                        || ($isSelf && $actor->can('selfDeleteEditHistory'));
+                }),
+            Schema\Boolean::make('canRollbackEditHistory')
+                ->get(function ($post, $context) {
+                    $actor = $context->getActor();
+                    $isSelf = $actor->id === $post->user_id;
+                    return $actor->can('rollbackEditHistory')
+                        || ($isSelf && $actor->can('selfRollbackEditHistory'));
+                }),
+            Schema\Integer::make('revisionCount')
+                ->get(function ($post) {
+                    $diffSubject = Diff::where('post_id', $post->id);
+                    return $diffSubject->exists() ? $diffSubject->max('revision') : 0;
+                }),
+            Schema\Relationship\ToMany::make('diff')
+                ->type('diff')
+                ->includable(),
+        ]),
 ];

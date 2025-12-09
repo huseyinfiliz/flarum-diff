@@ -1,5 +1,5 @@
 {
-    "name": "the-turk/flarum-diff",
+    "name": "huseyinfiliz/flarum-diff",
     "description": "View post edit histories.",
     "keywords": [
         "flarum",
@@ -12,6 +12,10 @@
     "type": "flarum-extension",
     "license": "MIT",
     "authors": [
+        {
+            "name": "Hüseyin Filiz",
+            "homepage": "https://github.com/huseyinfiliz"
+        },
         {
             "name": "Hasan Özbey",
             "email": "hasanoozbey@gmail.com",
@@ -33,9 +37,8 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/the-turk/flarum-diff/issues",
-        "source": "https://github.com/the-turk/flarum-diff",
-        "forum": "https://discuss.flarum.org/d/22779-diff-for-flarum"
+        "issues": "https://github.com/huseyinfiliz/flarum-diff/issues",
+        "source": "https://github.com/huseyinfiliz/flarum-diff"
     },
     "require": {
         "flarum/core": "^2.0.0-beta",

@@ -1,7 +1,7 @@
 import { extend } from 'flarum/common/extend';
 
 import app from 'flarum/common/app';
-import CommentPost from 'flarum/common/components/CommentPost';
+import CommentPost from 'flarum/forum/components/CommentPost';
 import Page from 'flarum/common/components/Page';
 import Post from 'flarum/common/models/Post';
 import Model from 'flarum/common/Model';
