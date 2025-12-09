@@ -6,6 +6,7 @@ use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Schema;
+use Flarum\Api\Sort\SortColumn;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Post;
@@ -61,6 +62,7 @@ class DiffResource extends AbstractDatabaseResource
             Endpoint\Index::make()
                 ->paginate()
                 ->defaultInclude(['actor', 'deletedUser', 'rollbackedUser'])
+                ->defaultSort('-revision')
                 ->before(function (Context $context) {
                     $context->getActor()->assertCan('viewEditHistory');
                 })
@@ -166,7 +168,9 @@ class DiffResource extends AbstractDatabaseResource
 
     public function sorts(): array
     {
-        return [];
+        return [
+            SortColumn::make('revision'),
+        ];
     }
 
     protected function getRevisionContent(Diff $diff): ?string
