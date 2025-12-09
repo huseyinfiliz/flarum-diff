@@ -1,6 +1,6 @@
 <?php
 
-namespace TheTurk\Diff\Api\Resource;
+namespace HuseyinFiliz\Diff\Api\Resource;
 
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
@@ -13,13 +13,14 @@ use Flarum\Post\PostRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Jfcherng\Diff\Differ;
 use Jfcherng\Diff\Factory\RendererFactory;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use TheTurk\Diff\Commands\DeleteDiff;
-use TheTurk\Diff\Commands\RollbackToDiff;
-use TheTurk\Diff\Models\Diff;
-use TheTurk\Diff\Repositories\DiffArchiveRepository;
+use HuseyinFiliz\Diff\Commands\DeleteDiff;
+use HuseyinFiliz\Diff\Commands\RollbackToDiff;
+use HuseyinFiliz\Diff\Models\Diff;
+use HuseyinFiliz\Diff\Repositories\DiffArchiveRepository;
 use Tobyz\JsonApiServer\Context as OriginalContext;
 
 /**
@@ -50,7 +51,8 @@ class DiffResource extends AbstractDatabaseResource
 
     public function scope(Builder $query, OriginalContext $context): void
     {
-        $query->whereVisibleTo($context->getActor());
+        // Diff modeli için özel visibility scope yok
+        // Sadece viewEditHistory permission kontrolü endpoints'te yapılıyor
     }
 
     public function endpoints(): array
@@ -64,6 +66,12 @@ class DiffResource extends AbstractDatabaseResource
                 })
                 ->eagerLoad(['actor', 'deletedUser', 'rollbackedUser']),
 
+            Endpoint\Show::make()
+                ->authenticated()
+                ->before(function (Context $context) {
+                    $context->getActor()->assertCan('viewEditHistory');
+                }),
+
             Endpoint\Delete::make()
                 ->can(function (Diff $diff, Context $context) {
                     $actor = $context->getActor();
@@ -73,17 +81,21 @@ class DiffResource extends AbstractDatabaseResource
                     return $actor->can('deleteEditHistory')
                         || ($isSelf && $actor->can('selfDeleteEditHistory'));
                 })
-                ->action(function (Diff $diff, Context $context) {
+                ->action(function (Context $context) {
+                    $diffId = Arr::get($context->request->getQueryParams(), 'id');
                     $this->bus->dispatch(
-                        new DeleteDiff($context->getActor(), $diff->id)
+                        new DeleteDiff($context->getActor(), $diffId)
                     );
                 }),
 
-            Endpoint\Endpoint::make('rollback')
-                ->route('POST', '/{id}/rollback')
-                ->action(function (Context $context) {
-                    $diff = $this->query($context)
-                        ->findOrFail($context->getId());
+            // Rollback endpoint - POST /api/diff/{id}
+            // Frontend calls: POST /api/diff/{rollbackTo}
+            Endpoint\Show::make('rollback')
+                ->route('POST', '/{id}')
+                ->authenticated()
+                ->before(function (Context $context) {
+                    $diffId = Arr::get($context->request->getQueryParams(), 'id');
+                    $diff = Diff::findOrFail($diffId);
 
                     $actor = $context->getActor();
                     $post = $this->posts->findOrFail($diff->post_id, $actor);
@@ -94,11 +106,10 @@ class DiffResource extends AbstractDatabaseResource
                         throw new \Flarum\User\Exception\PermissionDeniedException();
                     }
 
-                    return $this->bus->dispatch(
-                        new RollbackToDiff($actor, $diff->id)
+                    $this->bus->dispatch(
+                        new RollbackToDiff($actor, $diffId)
                     );
-                })
-                ->response(fn ($diff) => $diff),
+                }),
         ];
     }
 
@@ -189,7 +200,7 @@ class DiffResource extends AbstractDatabaseResource
 
     protected function formatContent(string $content): string
     {
-        if ($this->settings->get('the-turk-diff.textFormatting', true)) {
+        if ($this->settings->get('huseyinfiliz-diff.textFormatting', true)) {
             return $this->commentPost->getFormatter()->render(
                 $this->commentPost->getFormatter()->parse($content, $this->commentPost),
                 $this->commentPost
@@ -283,19 +294,19 @@ class DiffResource extends AbstractDatabaseResource
             explode("\n", $oldRevision),
             explode("\n", $currentRevision),
             [
-                'context' => (int) $this->settings->get('the-turk-diff.neighborLines', 2),
+                'context' => (int) $this->settings->get('huseyinfiliz-diff.neighborLines', 2),
                 'ignoreCase' => $ignoreCase,
                 'ignoreWhitespace' => $ignoreWhiteSpace,
             ]
         );
 
         $rendererOptions = [
-            'detailLevel' => $this->settings->get('the-turk-diff.detailLevel', 'line'),
-            'separateBlock' => (bool) $this->settings->get('the-turk-diff.separateBlock', true),
+            'detailLevel' => $this->settings->get('huseyinfiliz-diff.detailLevel', 'line'),
+            'separateBlock' => (bool) $this->settings->get('huseyinfiliz-diff.separateBlock', true),
             'lineNumbers' => false,
             'wrapperClasses' => ['TheTurkDiff', 'CustomDiff', 'diff-wrapper'],
-            'resultForIdenticals' => '<div class="noDiff"><p>' . $this->translator->trans('the-turk-diff.forum.noDiff') . '</p></div>',
-            'mergeThreshold' => \TheTurk\Diff\Jobs\ArchiveDiffs::sanitizeFloat($this->settings->get('the-turk-diff.mergeThreshold', 0.8)),
+            'resultForIdenticals' => '<div class="noDiff"><p>' . $this->translator->trans('huseyinfiliz-diff.forum.noDiff') . '</p></div>',
+            'mergeThreshold' => \HuseyinFiliz\Diff\Jobs\ArchiveDiffs::sanitizeFloat($this->settings->get('huseyinfiliz-diff.mergeThreshold', 0.8)),
         ];
 
         $renderer = RendererFactory::make($rendererType, $rendererOptions);

@@ -50,7 +50,7 @@
     },
     "autoload": {
         "psr-4": {
-            "TheTurk\\Diff\\": "src/"
+            "HuseyinFiliz\\Diff\\": "src/"
         }
     },
     "extra": {
@@ -59,7 +59,7 @@
             "category": "feature",
             "icon": {
                 "name": "fas fa-history",
-                "backgroundColor": "#b72a2a",
+                "backgroundColor": "#3498db",
                 "color": "#fff"
             }
         }

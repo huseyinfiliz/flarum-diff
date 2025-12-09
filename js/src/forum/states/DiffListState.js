@@ -43,13 +43,13 @@ export default class DiffListState {
     // set URL parameters
     const params = app.cache.diffs[this.post.id()]
       ? {
-          id: this.post.id(),
+          filter: { post_id: this.post.id() },
           page: {
             offset: app.cache.diffs[this.post.id()].length * 10,
           },
         }
       : {
-          id: this.post.id(),
+          filter: { post_id: this.post.id() },
         };
 
     return app.store

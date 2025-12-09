@@ -1,5 +1,5 @@
 {
-  "name": "@the-turk/flarum-diff",
+  "name": "@huseyinfiliz/flarum-diff",
   "private": true,
   "version": "0.0.0",
   "prettier": "@flarum/prettier-config",

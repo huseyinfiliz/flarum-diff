@@ -1,6 +1,6 @@
 <?php
 
-namespace TheTurk\Diff\Listeners;
+namespace HuseyinFiliz\Diff\Listeners;
 
 use Carbon\Carbon;
 use Flarum\Extension\ExtensionManager;
@@ -8,8 +8,8 @@ use Flarum\Post\Event\Revised as PostRevised;
 use Flarum\Post\Event\Saving as PostSaving;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
-use TheTurk\Diff\Jobs\ArchiveDiffs;
-use TheTurk\Diff\Models\Diff;
+use HuseyinFiliz\Diff\Jobs\ArchiveDiffs;
+use HuseyinFiliz\Diff\Models\Diff;
 
 class PostActions
 {
@@ -64,7 +64,7 @@ class PostActions
     public function whenRevisedPost($event)
     {
         $mainPostOnly = (bool) $this->settings->get(
-            'the-turk-diff.mainPostOnly',
+            'huseyinfiliz-diff.mainPostOnly',
             false
         );
 
@@ -76,12 +76,12 @@ class PostActions
         }
 
         $archiveOlds = $this->settings->get(
-            'the-turk-diff.archiveOlds',
+            'huseyinfiliz-diff.archiveOlds',
             false
         );
 
         $useCrons = $this->settings->get(
-            'the-turk-diff.useCrons',
+            'huseyinfiliz-diff.useCrons',
             false
         );
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace TheTurk\Diff\Repositories;
+namespace HuseyinFiliz\Diff\Repositories;
 
-use TheTurk\Diff\Models\Diff;
+use HuseyinFiliz\Diff\Models\Diff;
 
 class DiffRepository
 {

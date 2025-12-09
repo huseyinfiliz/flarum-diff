@@ -1,12 +1,12 @@
 <?php
 
-namespace TheTurk\Diff\Jobs;
+namespace HuseyinFiliz\Diff\Jobs;
 
 use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Psr\Log\LoggerInterface;
-use TheTurk\Diff\Models\Diff;
-use TheTurk\Diff\Repositories\DiffArchiveRepository;
+use HuseyinFiliz\Diff\Models\Diff;
+use HuseyinFiliz\Diff\Repositories\DiffArchiveRepository;
 
 /**
  * We're using a linear equation (y=mx+b) where the x is post's revision count.
@@ -29,7 +29,7 @@ class ArchiveDiffs
     ) {
         // this is the A value
         $this->revLimit = self::sanitizeFloat(
-            $settings->get('the-turk-diff.archiveLimit', 15)
+            $settings->get('huseyinfiliz-diff.archiveLimit', 15)
         );
     }
 
@@ -46,11 +46,11 @@ class ArchiveDiffs
         }
         // this is the m value
         $slope = self::sanitizeFloat(
-            $this->settings->get('the-turk-diff.archiveSlope', 0.4)
+            $this->settings->get('huseyinfiliz-diff.archiveSlope', 0.4)
         );
         // this is the b value
         $coefficient = self::sanitizeFloat(
-            $this->settings->get('the-turk-diff.archiveCoefficient', 0)
+            $this->settings->get('huseyinfiliz-diff.archiveCoefficient', 0)
         );
         // y = mx + b
         // float values of y will be rounded to the next lowest integer value.

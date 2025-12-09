@@ -32,14 +32,14 @@ export default class DiffButton extends Button {
       revision.revision() == 0
         ? /* {username} created {ago} */
           extractText(
-            app.translator.trans('the-turk-diff.forum.createdInfo', {
+            app.translator.trans('huseyinfiliz-diff.forum.createdInfo', {
               username: username(revision.actor()),
               ago: humanTime(this.attrs.postDate),
             })
           )
         : /* {username} edited {ago} */
           extractText(
-            app.translator.trans('the-turk-diff.forum.editedInfo', {
+            app.translator.trans('huseyinfiliz-diff.forum.editedInfo', {
               username: username(revision.actor()),
               ago: humanTime(revision.createdAt()),
             })
@@ -48,13 +48,13 @@ export default class DiffButton extends Button {
     if (revision.deletedAt()) {
       if (this.attrs.subButton === false) {
         /* {username} did something {ago} (deleted) */
-        buttonText = buttonText + ' ' + app.translator.trans('the-turk-diff.forum.deletedText');
+        buttonText = buttonText + ' ' + app.translator.trans('huseyinfiliz-diff.forum.deletedText');
       } else {
         /* sub button text that appears when you click on caret icon */
         actor = revision.deletedUser();
         /* {actor} deleted this content {ago} */
         buttonText = extractText(
-          app.translator.trans('the-turk-diff.forum.deletedInfo', {
+          app.translator.trans('huseyinfiliz-diff.forum.deletedInfo', {
             username: username(revision.deletedUser()),
             ago: humanTime(revision.deletedAt()),
           })

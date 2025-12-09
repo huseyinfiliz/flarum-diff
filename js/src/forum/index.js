@@ -8,7 +8,7 @@ import Model from 'flarum/common/Model';
 import Diff from './models/Diff';
 import DiffDropdown from './components/DiffDropdown';
 
-app.initializers.add('the-turk-diff', () => {
+app.initializers.add('huseyinfiliz-diff', () => {
   app.store.models.diff = Diff;
 
   Post.prototype.revisionCount = Model.attribute('revisionCount');

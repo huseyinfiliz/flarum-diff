@@ -31,12 +31,12 @@ export default class DiffList extends Component {
                         text={
                           item.revision() == state.post.revisionCount()
                             ? // we're hovering on latest revision's button
-                              app.translator.trans('the-turk-diff.forum.tooltips.mostRecent')
+                              app.translator.trans('huseyinfiliz-diff.forum.tooltips.mostRecent')
                             : item.revision() == 0
                               ? // we're hovering on zeroth revision's button
-                                app.translator.trans('the-turk-diff.forum.tooltips.originalContent')
+                                app.translator.trans('huseyinfiliz-diff.forum.tooltips.originalContent')
                               : // we're hovering on other revision's button
-                                app.translator.trans('the-turk-diff.forum.tooltips.revisionWithNumber', {
+                                app.translator.trans('huseyinfiliz-diff.forum.tooltips.revisionWithNumber', {
                                   number: item.revision(),
                                 })
                         }
@@ -105,7 +105,7 @@ export default class DiffList extends Component {
                 className: 'LoadingIndicator--block',
               })
             ) : !pages.length ? (
-              <div className="DiffList-empty">{app.translator.trans('the-turk-diff.forum.emptyText')}</div>
+              <div className="DiffList-empty">{app.translator.trans('huseyinfiliz-diff.forum.emptyText')}</div>
             ) : (
               ''
             )}

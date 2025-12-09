@@ -13,7 +13,7 @@ export default class DiffDropdown extends Dropdown {
     attrs.className = 'DiffDropdown';
     attrs.buttonClassName = 'Button Button--link';
     attrs.menuClassName = attrs.menuClassName;
-    attrs.label = app.translator.trans('the-turk-diff.forum.editedText');
+    attrs.label = app.translator.trans('huseyinfiliz-diff.forum.editedText');
     attrs.icon = 'fas fa-history';
 
     super.initAttrs(attrs);
@@ -58,7 +58,7 @@ export default class DiffDropdown extends Dropdown {
         <div className="DiffList-header">
           <h4>
             {/* edited 1 time | edited x times */}
-            {app.translator.trans('the-turk-diff.forum.revisionInfo', { revisionCount })}
+            {app.translator.trans('huseyinfiliz-diff.forum.revisionInfo', { revisionCount })}
           </h4>
         </div>
         {this.showing ? <DiffList state={this.listState}></DiffList> : ''}

@@ -60,7 +60,7 @@ export default class DiffModal extends Modal {
       this.attrs.listState.selectedItem.actor().username() ? <Avatar user={this.attrs.listState.selectedItem.actor()} /> : '',
       this.attrs.listState.selectedItem.revision() != 0
         ? // x edited y ago
-          app.translator.trans('the-turk-diff.forum.editedInfo', {
+          app.translator.trans('huseyinfiliz-diff.forum.editedInfo', {
             username: (
               <a href={app.route.user(this.attrs.listState.selectedItem.actor())} config={m.route}>
                 {username(this.attrs.listState.selectedItem.actor())}
@@ -69,7 +69,7 @@ export default class DiffModal extends Modal {
             ago: humanTime(this.attrs.listState.selectedItem.createdAt()),
           })
         : // x created y ago
-          app.translator.trans('the-turk-diff.forum.createdInfo', {
+          app.translator.trans('huseyinfiliz-diff.forum.createdInfo', {
             username: (
               <a href={app.route.user(this.attrs.listState.selectedItem.actor())} config={m.route}>
                 {username(this.attrs.listState.selectedItem.actor())}
@@ -137,7 +137,7 @@ export default class DiffModal extends Modal {
               icon="fas fa-ellipsis-v"
               buttonClassName="Button"
               menuClassName="Dropdown-menu--right"
-              label={app.translator.trans('the-turk-diff.forum.optionsButton')}
+              label={app.translator.trans('huseyinfiliz-diff.forum.optionsButton')}
             >
               {
                 // Rollback
@@ -151,7 +151,7 @@ export default class DiffModal extends Modal {
                       onclick: () => {
                         if (
                           confirm(
-                            app.translator.trans('the-turk-diff.forum.confirmRollback', {
+                            app.translator.trans('huseyinfiliz-diff.forum.confirmRollback', {
                               number: this.attrs.listState.selectedItem.revision(),
                             })
                           )
@@ -191,15 +191,15 @@ export default class DiffModal extends Modal {
                     },
                     this.attrs.listState.selectedItem.revision() == 0
                       ? /* we're viewing the original content */
-                        app.translator.trans('the-turk-diff.forum.rollbackToOriginalButton')
+                        app.translator.trans('huseyinfiliz-diff.forum.rollbackToOriginalButton')
                       : this.attrs.listState.selectedItem.revision() == this.attrs.listState.post.revisionCount()
                         ? this.comparisonBetween.old.revision != 0
                           ? /* we're comparing this revision with current content. */
-                            app.translator.trans('the-turk-diff.forum.revertChangesButton')
+                            app.translator.trans('huseyinfiliz-diff.forum.revertChangesButton')
                           : /* we're comparing this revision with original content */
-                            app.translator.trans('the-turk-diff.forum.rollbackToOriginalButton')
+                            app.translator.trans('huseyinfiliz-diff.forum.rollbackToOriginalButton')
                         : /* we're comparing this revision with another revision */
-                          app.translator.trans('the-turk-diff.forum.rollbackButton', {
+                          app.translator.trans('huseyinfiliz-diff.forum.rollbackButton', {
                             number: this.attrs.listState.selectedItem.revision(),
                           })
                   )
@@ -216,7 +216,7 @@ export default class DiffModal extends Modal {
                     {
                       icon: 'far fa-trash-alt',
                       onclick: () => {
-                        if (confirm(app.translator.trans('the-turk-diff.forum.confirmDelete'))) {
+                        if (confirm(app.translator.trans('huseyinfiliz-diff.forum.confirmDelete'))) {
                           this.loading = true;
                           m.redraw();
 
@@ -240,7 +240,7 @@ export default class DiffModal extends Modal {
                         }
                       },
                     },
-                    app.translator.trans('the-turk-diff.forum.deleteButton')
+                    app.translator.trans('huseyinfiliz-diff.forum.deleteButton')
                   )
                 : ''}
             </Dropdown>
@@ -288,7 +288,7 @@ export default class DiffModal extends Modal {
           <div className="diffSwitcher">
             {this.attrs.listState.selectedItem.revision() != 0 && this.comparisonBetween.new.revision != this.comparisonBetween.old.revision
               ? diffSwitches.map((switchData) => (
-                  <Tooltip showOnFocus={false} text={app.translator.trans(`the-turk-diff.forum.tooltips.${switchData.type}`)}>
+                  <Tooltip showOnFocus={false} text={app.translator.trans(`huseyinfiliz-diff.forum.tooltips.${switchData.type}`)}>
                     <div className="tooltip-wrapper">
                       <Button
                         icon={switchData.icon}
@@ -299,7 +299,7 @@ export default class DiffModal extends Modal {
                   </Tooltip>
                 ))
               : ''}
-            <Tooltip showOnFocus={false} text={app.translator.trans('the-turk-diff.forum.tooltips.preview')}>
+            <Tooltip showOnFocus={false} text={app.translator.trans('huseyinfiliz-diff.forum.tooltips.preview')}>
               <div className="tooltip-wrapper">
                 <Button icon="far fa-eye" onclick={() => this.setDiffContent('preview')} className="Button Button--icon Button--link diffPreview" />
               </div>
@@ -310,7 +310,7 @@ export default class DiffModal extends Modal {
         {/* Comparison Info Container */}
         <div className="diff-grid-item diff-grid-info">
           <div className="revisionInfo">
-            <h4>{app.translator.trans('the-turk-diff.forum.revisions', { revisionCount })}</h4>
+            <h4>{app.translator.trans('huseyinfiliz-diff.forum.revisions', { revisionCount })}</h4>
             <p class="diffInfoContainer" />
           </div>
         </div>
@@ -362,8 +362,8 @@ export default class DiffModal extends Modal {
    */
   showAlert(type, key) {
     const message = {
-      success: 'the-turk-diff.forum.' + key + 'SuccessMessage',
-      error: 'the-turk-diff.forum.' + key + 'ErrorMessage',
+      success: 'huseyinfiliz-diff.forum.' + key + 'SuccessMessage',
+      error: 'huseyinfiliz-diff.forum.' + key + 'ErrorMessage',
     }[type];
 
     app.alerts.show(Alert, { type }, app.translator.trans(message));
@@ -458,42 +458,42 @@ export default class DiffModal extends Modal {
     let infoContentHtml =
       !preview && this.attrs.listState.selectedItem.revision() != 0 && this.comparisonBetween.new.revision != this.comparisonBetween.old.revision
         ? extractText(
-            app.translator.trans('the-turk-diff.forum.differences.sentence', {
+            app.translator.trans('huseyinfiliz-diff.forum.differences.sentence', {
               old:
                 this.comparisonBetween.old.revision == -1
                   ? /* we're viewing differences between current content and {new} */
-                    app.translator.trans('the-turk-diff.forum.differences.currentContent')
+                    app.translator.trans('huseyinfiliz-diff.forum.differences.currentContent')
                   : this.comparisonBetween.old.revision == 0
                     ? /* we're viewing differences between original content and {new} */
-                      app.translator.trans('the-turk-diff.forum.differences.originalContent')
+                      app.translator.trans('huseyinfiliz-diff.forum.differences.originalContent')
                     : /* we're viewing differences between revision X and {new} */
-                      app.translator.trans('the-turk-diff.forum.differences.revisionWithNumber', {
+                      app.translator.trans('huseyinfiliz-diff.forum.differences.revisionWithNumber', {
                         number: this.comparisonBetween.old.revision,
                       }),
               new:
                 this.comparisonBetween.new.revision == 0
                   ? /* we're viewing differences between {old} and original content */
-                    app.translator.trans('the-turk-diff.forum.differences.originalContent')
+                    app.translator.trans('huseyinfiliz-diff.forum.differences.originalContent')
                   : this.comparisonBetween.new.revision == this.attrs.listState.post.revisionCount()
                     ? /* we're viewing differences between {old} and current content */
-                      app.translator.trans('the-turk-diff.forum.differences.currentContent')
+                      app.translator.trans('huseyinfiliz-diff.forum.differences.currentContent')
                     : /* we're viewing differences between {old} and revision X */
-                      app.translator.trans('the-turk-diff.forum.differences.revisionWithNumber', {
+                      app.translator.trans('huseyinfiliz-diff.forum.differences.revisionWithNumber', {
                         number: this.comparisonBetween.new.revision,
                       }),
             })
           )
         : extractText(
-            app.translator.trans('the-turk-diff.forum.previewMode.sentence', {
+            app.translator.trans('huseyinfiliz-diff.forum.previewMode.sentence', {
               content:
                 this.comparisonBetween.new.revision == 0
                   ? /* we're previewing original content */
-                    app.translator.trans('the-turk-diff.forum.previewMode.originalContent')
+                    app.translator.trans('huseyinfiliz-diff.forum.previewMode.originalContent')
                   : this.comparisonBetween.new.revision == this.attrs.listState.post.revisionCount()
                     ? /* we're previewing current content */
-                      app.translator.trans('the-turk-diff.forum.previewMode.currentContent')
+                      app.translator.trans('huseyinfiliz-diff.forum.previewMode.currentContent')
                     : /* we're previewing revision X */
-                      app.translator.trans('the-turk-diff.forum.previewMode.revisionWithNumber', {
+                      app.translator.trans('huseyinfiliz-diff.forum.previewMode.revisionWithNumber', {
                         number: this.comparisonBetween.new.revision,
                       }),
             })

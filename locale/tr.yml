@@ -1,4 +1,4 @@
-the-turk-diff:
+huseyinfiliz-diff:
     forum:
         revisions:                   "{revisionCount} revizyon"
         emptyText:                   Düzenleme Bulunamadı
@@ -8,8 +8,8 @@ the-turk-diff:
         tooltips:
           # Revision List Tooltips
           mostRecent:                en güncel
-          originalContent:           => the-turk-diff.ref.originalContent
-          revisionWithNumber:        => the-turk-diff.ref.revisionWithNumber
+          originalContent:           => huseyinfiliz-diff.ref.originalContent
+          revisionWithNumber:        => huseyinfiliz-diff.ref.revisionWithNumber
           ## Renderer Switcher Tooltips
           sideBySide:                Yan Yana
           inline:                    Alt Alta
@@ -42,17 +42,17 @@ the-turk-diff:
 
         differences:
           # one of the following will be used in place of {old} or {new} in ‘sentence’ key
-          originalContent:           => the-turk-diff.ref.originalContent
-          currentContent:            => the-turk-diff.ref.currentContent
-          revisionWithNumber:        => the-turk-diff.ref.revisionWithNumber
+          originalContent:           => huseyinfiliz-diff.ref.originalContent
+          currentContent:            => huseyinfiliz-diff.ref.currentContent
+          revisionWithNumber:        => huseyinfiliz-diff.ref.revisionWithNumber
           #---
           sentence:                  "{old} ve {new} arasındaki farklılıkları görüntülüyorsunuz"
 
         previewMode:
           # one of the following will be used in place of {content} in ‘sentence’ key
-          originalContent:           => the-turk-diff.ref.originalContent
-          currentContent:            => the-turk-diff.ref.currentContent
-          revisionWithNumber:        => the-turk-diff.ref.revisionWithNumber
+          originalContent:           => huseyinfiliz-diff.ref.originalContent
+          currentContent:            => huseyinfiliz-diff.ref.currentContent
+          revisionWithNumber:        => huseyinfiliz-diff.ref.revisionWithNumber
           #---
           sentence:                  "{content} için ön izlemeyi görüntülüyorsunuz"
     admin:

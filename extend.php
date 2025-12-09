@@ -8,16 +8,19 @@
  * with this source code.
  */
 
-namespace TheTurk\Diff;
+namespace HuseyinFiliz\Diff;
 
 use Flarum\Api\Resource\PostResource;
 use Flarum\Api\Schema;
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Flarum\Post\Post;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Illuminate\Console\Scheduling\Event;
-use TheTurk\Diff\Console\ArchiveCommand;
-use TheTurk\Diff\Models\Diff;
+use HuseyinFiliz\Diff\Console\ArchiveCommand;
+use HuseyinFiliz\Diff\Models\Diff;
+use HuseyinFiliz\Diff\Search\DiffSearcher;
+use HuseyinFiliz\Diff\Search\PostIdFilter;
 
 return [
     (new Extend\Frontend('admin'))
@@ -46,10 +49,15 @@ return [
         }),
 
     (new Extend\Settings())
-        ->serializeToForum('textFormattingForDiffPreviews', 'the-turk-diff.textFormatting', 'boolVal', true),
+        ->serializeToForum('textFormattingForDiffPreviews', 'huseyinfiliz-diff.textFormatting', 'boolVal', true),
 
     (new Extend\User())
         ->registerPreference('diffRenderer', 'strval', 'sideBySide'),
+
+    // Register Searcher for Diff model
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addSearcher(Diff::class, DiffSearcher::class)
+        ->addFilter(DiffSearcher::class, PostIdFilter::class),
 
     // Register the Diff API Resource
     new Extend\ApiResource(Api\Resource\DiffResource::class),

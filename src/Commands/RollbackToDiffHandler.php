@@ -1,19 +1,22 @@
 <?php
 
-namespace TheTurk\Diff\Commands;
+namespace HuseyinFiliz\Diff\Commands;
 
 use Carbon\Carbon;
-use Flarum\Post\Command\EditPost;
 use Flarum\Post\PostRepository;
+use Flarum\Post\Event\Revised;
 use Flarum\User\Exception\PermissionDeniedException;
-use Illuminate\Contracts\Bus\Dispatcher;
-use TheTurk\Diff\Models\Diff;
-use TheTurk\Diff\Repositories\DiffArchiveRepository;
+use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
+use HuseyinFiliz\Diff\Models\Diff;
+use HuseyinFiliz\Diff\Repositories\DiffArchiveRepository;
 
 class RollbackToDiffHandler
 {
-    public function __construct(protected PostRepository $posts, protected Dispatcher $bus, protected DiffArchiveRepository $diffArchive)
-    {
+    public function __construct(
+        protected PostRepository $posts,
+        protected DiffArchiveRepository $diffArchive,
+        protected EventDispatcher $events
+    ) {
     }
 
     /*
@@ -56,26 +59,31 @@ class RollbackToDiffHandler
             }
         }
 
-        $postData = [
-            'attributes' => [
-                'content' => $postContent,
-            ],
-        ];
-
         if ($post->content !== $postContent) {
-            // dispatching events occuring when post edited
-            // this will also validate our new post
-            $this->bus->dispatch(
-                new EditPost($diff->post_id, $actor, $postData)
-            );
+            // Flarum 2.x: Doğrudan post'u güncelle
+            $post->content = $postContent;
+            $post->edited_at = Carbon::now();
+            $post->edited_user_id = $actor->id;
+            $post->save();
+
+            // Revised event'i dispatch et (diğer extension'ların hook'ları için)
+            $this->events->dispatch(new Revised($post, $actor, $post->content));
 
             $diff->rollbacked_user_id = $actor->id;
             $diff->rollbacked_at = Carbon::now();
+
             // this is to track what's been rollbacked to what
-            $diff->rollbacked_to = Diff::where('post_id', $diff->post_id)
+            $newRevision = Diff::where('post_id', $diff->post_id)
                 ->where('revision', $maxRevisionCount + 1)
-                ->firstOrFail()->id;
+                ->first();
+            
+            if ($newRevision) {
+                $diff->rollbacked_to = $newRevision->id;
+            }
+
             $diff->save();
         }
+
+        return $diff;
     }
 }

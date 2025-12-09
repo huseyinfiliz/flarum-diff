@@ -1,15 +1,15 @@
 import app from 'flarum/common/app';
 import DiffSettingsPage from './DiffSettingsPage';
 
-app.initializers.add('the-turk-diff', (app) => {
+app.initializers.add('huseyinfiliz-diff', (app) => {
   app.registry
-    .for('the-turk-diff')
+    .for('huseyinfiliz-diff')
     .registerPage(DiffSettingsPage)
     .registerPermission(
       {
         // who can view edit history?
         icon: 'fas fa-history',
-        label: app.translator.trans('the-turk-diff.admin.permissions.viewEditHistory'),
+        label: app.translator.trans('huseyinfiliz-diff.admin.permissions.viewEditHistory'),
         permission: 'viewEditHistory',
         allowGuest: false,
       },
@@ -19,7 +19,7 @@ app.initializers.add('the-turk-diff', (app) => {
       {
         // who can delete others edit history?
         icon: 'fas fa-times',
-        label: app.translator.trans('the-turk-diff.admin.permissions.deleteEditHistory'),
+        label: app.translator.trans('huseyinfiliz-diff.admin.permissions.deleteEditHistory'),
         permission: 'deleteEditHistory',
         allowGuest: false,
       },
@@ -29,7 +29,7 @@ app.initializers.add('the-turk-diff', (app) => {
       {
         // who can delete their own edit history?
         icon: 'fas fa-times',
-        label: app.translator.trans('the-turk-diff.admin.permissions.selfDeleteEditHistory'),
+        label: app.translator.trans('huseyinfiliz-diff.admin.permissions.selfDeleteEditHistory'),
         permission: 'selfDeleteEditHistory',
         allowGuest: false,
       },
@@ -39,7 +39,7 @@ app.initializers.add('the-turk-diff', (app) => {
       {
         // who can rollback others edit history?
         icon: 'fas fa-history',
-        label: app.translator.trans('the-turk-diff.admin.permissions.rollbackEditHistory'),
+        label: app.translator.trans('huseyinfiliz-diff.admin.permissions.rollbackEditHistory'),
         permission: 'rollbackEditHistory',
         allowGuest: false,
       },
@@ -49,7 +49,7 @@ app.initializers.add('the-turk-diff', (app) => {
       {
         // who can rollback their own edit history?
         icon: 'fas fa-history',
-        label: app.translator.trans('the-turk-diff.admin.permissions.selfRollbackEditHistory'),
+        label: app.translator.trans('huseyinfiliz-diff.admin.permissions.selfRollbackEditHistory'),
         permission: 'selfRollbackEditHistory',
         allowGuest: false,
       },
