@@ -78,25 +78,31 @@ jobs:
       # ============================================
       - name: Create discussion and posts with revisions
         run: |
-          mysql -uroot -proot flarum_test << 'EOF'
-          -- Create a discussion
-          INSERT INTO discussions (id, title, slug, comment_count, participant_count, post_number_index, created_at, user_id, first_post_id, last_post_id)
-          VALUES (1, 'Test Discussion', 'test-discussion', 1, 1, 1, NOW(), 1, 1, 1)
-          ON DUPLICATE KEY UPDATE title = 'Test Discussion';
+          mysql -uroot -proot flarum_test << 'EOSQL'
+          -- Disable foreign key checks temporarily
+          SET FOREIGN_KEY_CHECKS = 0;
+          
+          -- Create a discussion first (without post references)
+          INSERT INTO discussions (id, title, slug, comment_count, participant_count, post_number_index, created_at, user_id)
+          VALUES (1, 'Test Discussion', 'test-discussion', 1, 1, 1, NOW(), 1);
           
           -- Create a post
           INSERT INTO posts (id, discussion_id, number, created_at, user_id, type, content, edited_at, edit_count)
-          VALUES (1, 1, 1, NOW(), 1, 'comment', '<t><p>Current content - revision 3</p></t>', NOW(), 3)
-          ON DUPLICATE KEY UPDATE content = '<t><p>Current content - revision 3</p></t>';
+          VALUES (1, 1, 1, NOW(), 1, 'comment', '<t><p>Current content - revision 3</p></t>', NOW(), 3);
+          
+          -- Update discussion with post references
+          UPDATE discussions SET first_post_id = 1, last_post_id = 1 WHERE id = 1;
           
           -- Create revision history (simulating 3 edits)
           INSERT INTO post_edit_histories (id, post_id, actor_id, revision, created_at, content)
           VALUES 
             (1, 1, 1, 0, DATE_SUB(NOW(), INTERVAL 3 HOUR), 'Original content - revision 0'),
             (2, 1, 1, 1, DATE_SUB(NOW(), INTERVAL 2 HOUR), 'First edit - revision 1'),
-            (3, 1, 1, 2, DATE_SUB(NOW(), INTERVAL 1 HOUR), 'Second edit - revision 2')
-          ON DUPLICATE KEY UPDATE content = VALUES(content);
-          EOF
+            (3, 1, 1, 2, DATE_SUB(NOW(), INTERVAL 1 HOUR), 'Second edit - revision 2');
+          
+          -- Re-enable foreign key checks
+          SET FOREIGN_KEY_CHECKS = 1;
+          EOSQL
 
       - name: Verify test data created
         run: |
