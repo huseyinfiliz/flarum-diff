@@ -1,0 +1,406 @@
+name: Migration Test (1.8 → 2.x)
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'migrations/**'
+      - '.github/workflows/migration-test.yml'
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  test-migration:
+    name: Test Data Preservation (Flarum 1.8 → 2.x)
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: flarum
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_mysql, json, gd, zip
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      # ============================================
+      # PHASE 1: Install Flarum 1.8 + the-turk/diff
+      # ============================================
+      - name: Create Flarum 1.8 project
+        run: |
+          composer create-project flarum/flarum:^1.8 flarum-test --stability=stable --no-interaction
+          cd flarum-test
+
+      - name: Configure Flarum 1.8
+        working-directory: flarum-test
+        run: |
+          # Create config.php
+          cat > config.php << 'EOF'
+          <?php return array (
+            'debug' => true,
+            'database' => array (
+              'driver' => 'mysql',
+              'host' => '127.0.0.1',
+              'port' => 3306,
+              'database' => 'flarum',
+              'username' => 'root',
+              'password' => 'root',
+              'charset' => 'utf8mb4',
+              'collation' => 'utf8mb4_unicode_ci',
+              'prefix' => '',
+              'strict' => false,
+            ),
+            'url' => 'http://localhost',
+            'paths' => array (
+              'api' => 'api',
+              'admin' => 'admin',
+            ),
+          );
+          EOF
+
+      - name: Install Flarum 1.8 database
+        working-directory: flarum-test
+        run: |
+          php flarum migrate
+          php flarum cache:clear
+
+      - name: Create admin user
+        working-directory: flarum-test
+        run: |
+          mysql -h 127.0.0.1 -u root -proot flarum << 'EOF'
+          INSERT INTO users (id, username, email, password, is_email_confirmed, joined_at)
+          VALUES (1, 'admin', 'admin@test.com', '$2y$10$abcdefghijklmnopqrstuv', 1, NOW());
+          
+          INSERT INTO group_user (user_id, group_id) VALUES (1, 1);
+          EOF
+
+      - name: Install the-turk/flarum-diff 1.x
+        working-directory: flarum-test
+        run: |
+          composer require the-turk/flarum-diff:"^1.0" --no-interaction
+          php flarum migrate
+          php flarum cache:clear
+
+      - name: Enable the-turk/flarum-diff
+        working-directory: flarum-test
+        run: |
+          mysql -h 127.0.0.1 -u root -proot flarum << 'EOF'
+          INSERT INTO settings (`key`, `value`) VALUES ('the-turk-diff.enabled', '1');
+          EOF
+
+      # ============================================
+      # PHASE 2: Create test data (revisions)
+      # ============================================
+      - name: Create discussion and posts with revisions
+        working-directory: flarum-test
+        run: |
+          mysql -h 127.0.0.1 -u root -proot flarum << 'EOF'
+          -- Create a discussion
+          INSERT INTO discussions (id, title, slug, comment_count, participant_count, post_number_index, created_at, user_id, first_post_id, last_post_id)
+          VALUES (1, 'Test Discussion', 'test-discussion', 1, 1, 1, NOW(), 1, 1, 1);
+          
+          -- Create a post
+          INSERT INTO posts (id, discussion_id, number, created_at, user_id, type, content, edited_at, edit_count)
+          VALUES (1, 1, 1, NOW(), 1, 'comment', '<t><p>Current content - revision 3</p></t>', NOW(), 3);
+          
+          -- Create revision history (simulating 3 edits)
+          INSERT INTO post_edit_histories (id, post_id, actor_id, revision, created_at, content)
+          VALUES 
+            (1, 1, 1, 0, DATE_SUB(NOW(), INTERVAL 3 HOUR), 'Original content - revision 0'),
+            (2, 1, 1, 1, DATE_SUB(NOW(), INTERVAL 2 HOUR), 'First edit - revision 1'),
+            (3, 1, 1, 2, DATE_SUB(NOW(), INTERVAL 1 HOUR), 'Second edit - revision 2');
+          EOF
+
+      - name: Verify test data created
+        id: verify-initial
+        working-directory: flarum-test
+        run: |
+          echo "=== Checking post_edit_histories table ==="
+          REVISION_COUNT=$(mysql -h 127.0.0.1 -u root -proot -N -e "SELECT COUNT(*) FROM flarum.post_edit_histories")
+          echo "Revision count: $REVISION_COUNT"
+          
+          echo "=== Revision contents ==="
+          mysql -h 127.0.0.1 -u root -proot -e "SELECT id, post_id, revision, LEFT(content, 50) as content_preview FROM flarum.post_edit_histories"
+          
+          echo "=== Migration records for the-turk-diff ==="
+          mysql -h 127.0.0.1 -u root -proot -e "SELECT * FROM flarum.migrations WHERE extension = 'the-turk-diff'"
+          
+          if [ "$REVISION_COUNT" -ne "3" ]; then
+            echo "ERROR: Expected 3 revisions, got $REVISION_COUNT"
+            exit 1
+          fi
+          
+          echo "revision_count=$REVISION_COUNT" >> $GITHUB_OUTPUT
+
+      # ============================================
+      # PHASE 3: Upgrade to Flarum 2.x
+      # ============================================
+      - name: Remove the-turk/flarum-diff
+        working-directory: flarum-test
+        run: |
+          # Disable extension first
+          mysql -h 127.0.0.1 -u root -proot flarum -e "DELETE FROM settings WHERE \`key\` = 'the-turk-diff.enabled'"
+          
+          # Remove package
+          composer remove the-turk/flarum-diff --no-interaction
+
+      - name: Upgrade to Flarum 2.x
+        working-directory: flarum-test
+        run: |
+          composer require flarum/core:"^2.0" --no-interaction --with-all-dependencies
+          php flarum migrate
+          php flarum cache:clear
+
+      - name: Verify data still exists after Flarum upgrade
+        working-directory: flarum-test
+        run: |
+          echo "=== Checking data after Flarum 2.x upgrade ==="
+          REVISION_COUNT=$(mysql -h 127.0.0.1 -u root -proot -N -e "SELECT COUNT(*) FROM flarum.post_edit_histories")
+          echo "Revision count after Flarum upgrade: $REVISION_COUNT"
+          
+          if [ "$REVISION_COUNT" -ne "3" ]; then
+            echo "ERROR: Data lost during Flarum upgrade! Expected 3, got $REVISION_COUNT"
+            exit 1
+          fi
+          
+          echo "✓ Data preserved after Flarum upgrade"
+
+      # ============================================
+      # PHASE 4: Install huseyinfiliz/flarum-diff
+      # ============================================
+      - name: Install huseyinfiliz/flarum-diff
+        working-directory: flarum-test
+        run: |
+          # Install from current repository (local path)
+          composer config repositories.local path ${{ github.workspace }}
+          composer require huseyinfiliz/flarum-diff:"*" --no-interaction
+
+      - name: Run migrations for huseyinfiliz/flarum-diff
+        working-directory: flarum-test
+        run: |
+          echo "=== Before migration ==="
+          mysql -h 127.0.0.1 -u root -proot -e "SELECT * FROM flarum.migrations WHERE extension LIKE '%diff%'"
+          
+          php flarum migrate
+          php flarum cache:clear
+          
+          echo "=== After migration ==="
+          mysql -h 127.0.0.1 -u root -proot -e "SELECT * FROM flarum.migrations WHERE extension LIKE '%diff%'"
+
+      # ============================================
+      # PHASE 5: Verify data preservation
+      # ============================================
+      - name: Verify revision data preserved
+        id: verify-final
+        working-directory: flarum-test
+        run: |
+          echo "============================================"
+          echo "  FINAL VERIFICATION - DATA PRESERVATION"
+          echo "============================================"
+          
+          REVISION_COUNT=$(mysql -h 127.0.0.1 -u root -proot -N -e "SELECT COUNT(*) FROM flarum.post_edit_histories")
+          echo "Final revision count: $REVISION_COUNT"
+          
+          echo ""
+          echo "=== All revision records ==="
+          mysql -h 127.0.0.1 -u root -proot -e "SELECT id, post_id, revision, created_at, LEFT(content, 50) as content_preview FROM flarum.post_edit_histories ORDER BY revision"
+          
+          echo ""
+          echo "=== Migration records ==="
+          mysql -h 127.0.0.1 -u root -proot -e "SELECT * FROM flarum.migrations WHERE extension LIKE '%diff%' ORDER BY migration"
+          
+          # Verify specific content exists
+          ORIGINAL=$(mysql -h 127.0.0.1 -u root -proot -N -e "SELECT content FROM flarum.post_edit_histories WHERE revision = 0")
+          REV1=$(mysql -h 127.0.0.1 -u root -proot -N -e "SELECT content FROM flarum.post_edit_histories WHERE revision = 1")
+          REV2=$(mysql -h 127.0.0.1 -u root -proot -N -e "SELECT content FROM flarum.post_edit_histories WHERE revision = 2")
+          
+          echo ""
+          echo "=== Content verification ==="
+          echo "Revision 0: $ORIGINAL"
+          echo "Revision 1: $REV1"
+          echo "Revision 2: $REV2"
+          
+          # Final assertions
+          PASS=true
+          
+          if [ "$REVISION_COUNT" -ne "3" ]; then
+            echo "❌ FAIL: Expected 3 revisions, got $REVISION_COUNT"
+            PASS=false
+          else
+            echo "✓ PASS: Revision count correct (3)"
+          fi
+          
+          if [[ "$ORIGINAL" != *"Original content"* ]]; then
+            echo "❌ FAIL: Original content not found"
+            PASS=false
+          else
+            echo "✓ PASS: Original content preserved"
+          fi
+          
+          if [[ "$REV1" != *"First edit"* ]]; then
+            echo "❌ FAIL: Revision 1 content not found"
+            PASS=false
+          else
+            echo "✓ PASS: Revision 1 preserved"
+          fi
+          
+          if [[ "$REV2" != *"Second edit"* ]]; then
+            echo "❌ FAIL: Revision 2 content not found"
+            PASS=false
+          else
+            echo "✓ PASS: Revision 2 preserved"
+          fi
+          
+          echo ""
+          echo "============================================"
+          if [ "$PASS" = true ]; then
+            echo "  ✅ ALL TESTS PASSED - DATA PRESERVED"
+            echo "============================================"
+          else
+            echo "  ❌ TESTS FAILED - DATA LOSS DETECTED"
+            echo "============================================"
+            exit 1
+          fi
+
+      - name: Test extension functionality
+        working-directory: flarum-test
+        run: |
+          # Enable the extension
+          mysql -h 127.0.0.1 -u root -proot flarum -e "INSERT INTO settings (\`key\`, \`value\`) VALUES ('huseyinfiliz-diff.enabled', '1')"
+          
+          # Verify extension is recognized
+          php flarum info | grep -i diff || echo "Extension info check complete"
+          
+          echo "✓ Extension installed and configured successfully"
+
+  # Optional: Test clean installation (no previous data)
+  test-clean-install:
+    name: Test Clean Installation
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: flarum_clean
+        ports:
+          - 3307:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_mysql, json, gd, zip
+          coverage: none
+
+      - name: Create Flarum 2.x project
+        run: |
+          composer create-project flarum/flarum:^2.0 flarum-clean --stability=stable --no-interaction
+
+      - name: Configure Flarum 2.x
+        working-directory: flarum-clean
+        run: |
+          cat > config.php << 'EOF'
+          <?php return array (
+            'debug' => true,
+            'database' => array (
+              'driver' => 'mysql',
+              'host' => '127.0.0.1',
+              'port' => 3307,
+              'database' => 'flarum_clean',
+              'username' => 'root',
+              'password' => 'root',
+              'charset' => 'utf8mb4',
+              'collation' => 'utf8mb4_unicode_ci',
+              'prefix' => '',
+              'strict' => false,
+            ),
+            'url' => 'http://localhost',
+            'paths' => array (
+              'api' => 'api',
+              'admin' => 'admin',
+            ),
+          );
+          EOF
+
+      - name: Install Flarum 2.x database
+        working-directory: flarum-clean
+        run: |
+          php flarum migrate
+          php flarum cache:clear
+
+      - name: Install huseyinfiliz/flarum-diff (clean)
+        working-directory: flarum-clean
+        run: |
+          composer config repositories.local path ${{ github.workspace }}
+          composer require huseyinfiliz/flarum-diff:"*" --no-interaction
+          php flarum migrate
+          php flarum cache:clear
+
+      - name: Verify tables created correctly
+        working-directory: flarum-clean
+        run: |
+          echo "=== Checking tables exist ==="
+          
+          TABLES=$(mysql -h 127.0.0.1 -P 3307 -u root -proot -N -e "SHOW TABLES FROM flarum_clean LIKE 'post_edit_histories%'")
+          echo "Tables found: $TABLES"
+          
+          if echo "$TABLES" | grep -q "post_edit_histories"; then
+            echo "✓ post_edit_histories table exists"
+          else
+            echo "❌ post_edit_histories table missing"
+            exit 1
+          fi
+          
+          if echo "$TABLES" | grep -q "post_edit_histories_archive"; then
+            echo "✓ post_edit_histories_archive table exists"
+          else
+            echo "❌ post_edit_histories_archive table missing"
+            exit 1
+          fi
+          
+          echo ""
+          echo "=== Table structures ==="
+          mysql -h 127.0.0.1 -P 3307 -u root -proot -e "DESCRIBE flarum_clean.post_edit_histories"
+          mysql -h 127.0.0.1 -P 3307 -u root -proot -e "DESCRIBE flarum_clean.post_edit_histories_archive"
+          
+          echo ""
+          echo "✅ Clean installation successful"

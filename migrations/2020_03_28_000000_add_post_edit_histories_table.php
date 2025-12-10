@@ -8,7 +8,21 @@ return [
      * Run the migrations.
      */
     'up' => function (Builder $schema) {
-        $schema->dropIfExists('post_edit_histories');
+        // Safety check: If table exists and has data, don't touch it
+        // This protects existing revision history from namespace change issues
+        if ($schema->hasTable('post_edit_histories')) {
+            $connection = $schema->getConnection();
+            $count = $connection->table('post_edit_histories')->count();
+            
+            if ($count > 0) {
+                // Table exists with data - this is likely an upgrade from the-turk/flarum-diff
+                // Do NOT drop the table, just return to preserve data
+                return;
+            }
+            
+            // Table exists but is empty - safe to recreate for clean schema
+            $schema->dropIfExists('post_edit_histories');
+        }
 
         $schema->create('post_edit_histories', function (Blueprint $table) {
             $table->increments('id');
