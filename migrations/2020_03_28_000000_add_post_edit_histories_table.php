@@ -15,12 +15,30 @@ return [
             $count = $connection->table('post_edit_histories')->count();
             
             if ($count > 0) {
-                // Table exists with data - this is likely an upgrade from the-turk/flarum-diff
-                // Do NOT drop the table, just return to preserve data
+                // Table exists with data - this is an upgrade from the-turk/flarum-diff
+                // Do NOT drop the table, preserve all revision history
                 return;
             }
             
             // Table exists but is empty - safe to recreate for clean schema
+            // First, drop self-referencing foreign key
+            try {
+                $schema->table('post_edit_histories', function (Blueprint $table) {
+                    $table->dropForeign(['rollbacked_to']);
+                });
+            } catch (\Exception $e) {
+                // FK might not exist
+            }
+            
+            // Drop foreign key to archive table if exists
+            try {
+                $schema->table('post_edit_histories', function (Blueprint $table) {
+                    $table->dropForeign(['archive_id']);
+                });
+            } catch (\Exception $e) {
+                // FK might not exist
+            }
+            
             $schema->dropIfExists('post_edit_histories');
         }
 
@@ -55,6 +73,25 @@ return [
      * Reverse the migrations.
      */
     'down' => function (Builder $schema) {
+        // Drop self-referencing FK first
+        if ($schema->hasTable('post_edit_histories')) {
+            try {
+                $schema->table('post_edit_histories', function (Blueprint $table) {
+                    $table->dropForeign(['rollbacked_to']);
+                });
+            } catch (\Exception $e) {
+                // FK might not exist
+            }
+            
+            try {
+                $schema->table('post_edit_histories', function (Blueprint $table) {
+                    $table->dropForeign(['archive_id']);
+                });
+            } catch (\Exception $e) {
+                // FK might not exist
+            }
+        }
+        
         $schema->dropIfExists('post_edit_histories');
     },
 ];

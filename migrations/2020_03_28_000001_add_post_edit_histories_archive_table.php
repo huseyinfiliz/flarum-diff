@@ -15,15 +15,31 @@ return [
             $count = $connection->table('post_edit_histories_archive')->count();
             
             if ($count > 0) {
-                // Table exists with data - this is likely an upgrade from the-turk/flarum-diff
-                // Do NOT drop the table, just ensure the foreign key exists and return
-                
-                // Check if foreign key already exists on post_edit_histories.archive_id
-                // If not, we need to add it (but table structure should be same)
+                // Table exists with data - this is an upgrade from the-turk/flarum-diff
+                // Do NOT drop the table, preserve all archived data
                 return;
             }
             
             // Table exists but is empty - safe to recreate for clean schema
+            // But first, we need to drop the foreign key from post_edit_histories
+            if ($schema->hasTable('post_edit_histories')) {
+                try {
+                    $schema->table('post_edit_histories', function (Blueprint $table) {
+                        // Drop foreign key constraint first
+                        $table->dropForeign(['archive_id']);
+                    });
+                } catch (\Exception $e) {
+                    // Foreign key might not exist or have different name, try alternate names
+                    try {
+                        $schema->table('post_edit_histories', function (Blueprint $table) {
+                            $table->dropForeign('post_edit_histories_archive_id_foreign');
+                        });
+                    } catch (\Exception $e2) {
+                        // FK doesn't exist, that's fine
+                    }
+                }
+            }
+            
             $schema->dropIfExists('post_edit_histories_archive');
         }
 
@@ -37,19 +53,17 @@ return [
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade')->onUpdate('cascade');
         });
 
-        // Only add foreign key if post_edit_histories table exists and doesn't have this FK yet
+        // Add foreign key to post_edit_histories if table exists and doesn't have this FK yet
         if ($schema->hasTable('post_edit_histories')) {
-            // Check if foreign key already exists
-            $connection = $schema->getConnection();
-            $prefix = $connection->getTablePrefix();
-            
-            // Try to add foreign key - will fail silently if already exists
-            try {
-                $schema->table('post_edit_histories', function (Blueprint $table) {
-                    $table->foreign('archive_id')->references('id')->on('post_edit_histories_archive')->onUpdate('set null')->onDelete('set null');
-                });
-            } catch (\Exception $e) {
-                // Foreign key likely already exists, which is fine
+            // Check if archive_id column exists
+            if ($schema->hasColumn('post_edit_histories', 'archive_id')) {
+                try {
+                    $schema->table('post_edit_histories', function (Blueprint $table) {
+                        $table->foreign('archive_id')->references('id')->on('post_edit_histories_archive')->onUpdate('set null')->onDelete('set null');
+                    });
+                } catch (\Exception $e) {
+                    // Foreign key likely already exists, which is fine
+                }
             }
         }
 
@@ -63,6 +77,17 @@ return [
      * Reverse the migrations.
      */
     'down' => function (Builder $schema) {
+        // Drop foreign key from post_edit_histories first
+        if ($schema->hasTable('post_edit_histories')) {
+            try {
+                $schema->table('post_edit_histories', function (Blueprint $table) {
+                    $table->dropForeign(['archive_id']);
+                });
+            } catch (\Exception $e) {
+                // FK might not exist
+            }
+        }
+        
         $schema->dropIfExists('post_edit_histories_archive');
     },
 ];
