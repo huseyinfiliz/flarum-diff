@@ -70,8 +70,19 @@ jobs:
         working-directory: flarum-test
         run: |
           composer require the-turk/flarum-diff:"^1.0" --no-interaction
+          
+          # Enable the extension in settings
+          mysql -uroot -proot flarum_test -e "UPDATE settings SET value = JSON_ARRAY_APPEND(COALESCE(value, '[]'), '\$', 'the-turk-diff') WHERE \`key\` = 'extensions_enabled';"
+          
+          # Run migrations to create tables
           php flarum migrate
           php flarum cache:clear
+          
+          # Verify extension is enabled and table exists
+          echo "=== Enabled extensions ==="
+          mysql -uroot -proot flarum_test -e "SELECT value FROM settings WHERE \`key\` = 'extensions_enabled';"
+          echo "=== Tables ==="
+          mysql -uroot -proot flarum_test -e "SHOW TABLES LIKE '%edit_histories%';"
 
       - name: Create API key for testing
         run: |
@@ -228,6 +239,9 @@ jobs:
           echo "=== Before migration ==="
           mysql -uroot -proot -e "SELECT * FROM flarum_test.migrations WHERE extension LIKE '%diff%'"
           
+          # Enable the new extension
+          mysql -uroot -proot flarum_test -e "UPDATE settings SET value = JSON_ARRAY_APPEND(COALESCE(value, '[]'), '\$', 'huseyinfiliz-diff') WHERE \`key\` = 'extensions_enabled';"
+          
           php flarum migrate
           php flarum cache:clear
           
@@ -343,6 +357,10 @@ jobs:
         run: |
           composer config repositories.local '{"type": "path", "url": "../", "options": {"symlink": false}}'
           composer require huseyinfiliz/flarum-diff:"*" --no-interaction
+          
+          # Enable the extension
+          mysql -uroot -proot flarum_clean -e "UPDATE settings SET value = JSON_ARRAY_APPEND(COALESCE(value, '[]'), '\$', 'huseyinfiliz-diff') WHERE \`key\` = 'extensions_enabled';"
+          
           php flarum migrate
           php flarum cache:clear
 
