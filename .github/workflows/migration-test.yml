@@ -37,7 +37,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, pdo, pdo_mysql, json, gd, zip
+          extensions: mbstring, pdo, pdo_mysql, json, gd, zip, iconv
           coverage: none
 
       - name: Get Composer cache directory
@@ -57,50 +57,22 @@ jobs:
       - name: Create Flarum 1.8 project
         run: |
           composer create-project flarum/flarum:^1.8 flarum-test --stability=stable --no-interaction
-          cd flarum-test
 
-      - name: Configure Flarum 1.8
+      - name: Install Flarum 1.8 via CLI
         working-directory: flarum-test
         run: |
-          # Create config.php
-          cat > config.php << 'EOF'
-          <?php return array (
-            'debug' => true,
-            'database' => array (
-              'driver' => 'mysql',
-              'host' => '127.0.0.1',
-              'port' => 3306,
-              'database' => 'flarum',
-              'username' => 'root',
-              'password' => 'root',
-              'charset' => 'utf8mb4',
-              'collation' => 'utf8mb4_unicode_ci',
-              'prefix' => '',
-              'strict' => false,
-            ),
-            'url' => 'http://localhost',
-            'paths' => array (
-              'api' => 'api',
-              'admin' => 'admin',
-            ),
-          );
-          EOF
-
-      - name: Install Flarum 1.8 database
-        working-directory: flarum-test
-        run: |
-          php flarum migrate
-          php flarum cache:clear
-
-      - name: Create admin user
-        working-directory: flarum-test
-        run: |
-          mysql -h 127.0.0.1 -u root -proot flarum << 'EOF'
-          INSERT INTO users (id, username, email, password, is_email_confirmed, joined_at)
-          VALUES (1, 'admin', 'admin@test.com', '$2y$10$abcdefghijklmnopqrstuv', 1, NOW());
-          
-          INSERT INTO group_user (user_id, group_id) VALUES (1, 1);
-          EOF
+          php flarum install \
+            --database=mysql \
+            --host=127.0.0.1 \
+            --port=3306 \
+            --dbname=flarum \
+            --user=root \
+            --pass=root \
+            --url=http://localhost \
+            --admin-username=admin \
+            --admin-password=password123 \
+            --admin-email=admin@test.com \
+            --title="Test Forum"
 
       - name: Install the-turk/flarum-diff 1.x
         working-directory: flarum-test
@@ -113,7 +85,8 @@ jobs:
         working-directory: flarum-test
         run: |
           mysql -h 127.0.0.1 -u root -proot flarum << 'EOF'
-          INSERT INTO settings (`key`, `value`) VALUES ('the-turk-diff.enabled', '1');
+          INSERT INTO settings (`key`, `value`) VALUES ('the-turk-diff.enabled', '1')
+          ON DUPLICATE KEY UPDATE `value` = '1';
           EOF
 
       # ============================================
@@ -125,18 +98,21 @@ jobs:
           mysql -h 127.0.0.1 -u root -proot flarum << 'EOF'
           -- Create a discussion
           INSERT INTO discussions (id, title, slug, comment_count, participant_count, post_number_index, created_at, user_id, first_post_id, last_post_id)
-          VALUES (1, 'Test Discussion', 'test-discussion', 1, 1, 1, NOW(), 1, 1, 1);
+          VALUES (1, 'Test Discussion', 'test-discussion', 1, 1, 1, NOW(), 1, 1, 1)
+          ON DUPLICATE KEY UPDATE title = 'Test Discussion';
           
           -- Create a post
           INSERT INTO posts (id, discussion_id, number, created_at, user_id, type, content, edited_at, edit_count)
-          VALUES (1, 1, 1, NOW(), 1, 'comment', '<t><p>Current content - revision 3</p></t>', NOW(), 3);
+          VALUES (1, 1, 1, NOW(), 1, 'comment', '<t><p>Current content - revision 3</p></t>', NOW(), 3)
+          ON DUPLICATE KEY UPDATE content = '<t><p>Current content - revision 3</p></t>';
           
           -- Create revision history (simulating 3 edits)
           INSERT INTO post_edit_histories (id, post_id, actor_id, revision, created_at, content)
           VALUES 
             (1, 1, 1, 0, DATE_SUB(NOW(), INTERVAL 3 HOUR), 'Original content - revision 0'),
             (2, 1, 1, 1, DATE_SUB(NOW(), INTERVAL 2 HOUR), 'First edit - revision 1'),
-            (3, 1, 1, 2, DATE_SUB(NOW(), INTERVAL 1 HOUR), 'Second edit - revision 2');
+            (3, 1, 1, 2, DATE_SUB(NOW(), INTERVAL 1 HOUR), 'Second edit - revision 2')
+          ON DUPLICATE KEY UPDATE content = VALUES(content);
           EOF
 
       - name: Verify test data created
@@ -200,7 +176,7 @@ jobs:
         working-directory: flarum-test
         run: |
           # Install from current repository (local path)
-          composer config repositories.local path ${{ github.workspace }}
+          composer config repositories.local '{"type": "path", "url": "../", "options": {"symlink": false}}'
           composer require huseyinfiliz/flarum-diff:"*" --no-interaction
 
       - name: Run migrations for huseyinfiliz/flarum-diff
@@ -294,10 +270,7 @@ jobs:
         working-directory: flarum-test
         run: |
           # Enable the extension
-          mysql -h 127.0.0.1 -u root -proot flarum -e "INSERT INTO settings (\`key\`, \`value\`) VALUES ('huseyinfiliz-diff.enabled', '1')"
-          
-          # Verify extension is recognized
-          php flarum info | grep -i diff || echo "Extension info check complete"
+          mysql -h 127.0.0.1 -u root -proot flarum -e "INSERT INTO settings (\`key\`, \`value\`) VALUES ('huseyinfiliz-diff.enabled', '1') ON DUPLICATE KEY UPDATE \`value\` = '1'"
           
           echo "✓ Extension installed and configured successfully"
 
@@ -313,7 +286,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: flarum_clean
         ports:
-          - 3307:3306
+          - 3306:3306
         options: >-
           --health-cmd="mysqladmin ping"
           --health-interval=10s
@@ -328,49 +301,33 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, pdo, pdo_mysql, json, gd, zip
+          extensions: mbstring, pdo, pdo_mysql, json, gd, zip, iconv
           coverage: none
 
       - name: Create Flarum 2.x project
         run: |
           composer create-project flarum/flarum:^2.0 flarum-clean --stability=stable --no-interaction
 
-      - name: Configure Flarum 2.x
+      - name: Install Flarum 2.x via CLI
         working-directory: flarum-clean
         run: |
-          cat > config.php << 'EOF'
-          <?php return array (
-            'debug' => true,
-            'database' => array (
-              'driver' => 'mysql',
-              'host' => '127.0.0.1',
-              'port' => 3307,
-              'database' => 'flarum_clean',
-              'username' => 'root',
-              'password' => 'root',
-              'charset' => 'utf8mb4',
-              'collation' => 'utf8mb4_unicode_ci',
-              'prefix' => '',
-              'strict' => false,
-            ),
-            'url' => 'http://localhost',
-            'paths' => array (
-              'api' => 'api',
-              'admin' => 'admin',
-            ),
-          );
-          EOF
-
-      - name: Install Flarum 2.x database
-        working-directory: flarum-clean
-        run: |
-          php flarum migrate
-          php flarum cache:clear
+          php flarum install \
+            --database=mysql \
+            --host=127.0.0.1 \
+            --port=3306 \
+            --dbname=flarum_clean \
+            --user=root \
+            --pass=root \
+            --url=http://localhost \
+            --admin-username=admin \
+            --admin-password=password123 \
+            --admin-email=admin@test.com \
+            --title="Test Forum Clean"
 
       - name: Install huseyinfiliz/flarum-diff (clean)
         working-directory: flarum-clean
         run: |
-          composer config repositories.local path ${{ github.workspace }}
+          composer config repositories.local '{"type": "path", "url": "../", "options": {"symlink": false}}'
           composer require huseyinfiliz/flarum-diff:"*" --no-interaction
           php flarum migrate
           php flarum cache:clear
@@ -380,8 +337,9 @@ jobs:
         run: |
           echo "=== Checking tables exist ==="
           
-          TABLES=$(mysql -h 127.0.0.1 -P 3307 -u root -proot -N -e "SHOW TABLES FROM flarum_clean LIKE 'post_edit_histories%'")
-          echo "Tables found: $TABLES"
+          TABLES=$(mysql -h 127.0.0.1 -u root -proot -N -e "SHOW TABLES FROM flarum_clean LIKE 'post_edit_histories%'")
+          echo "Tables found:"
+          echo "$TABLES"
           
           if echo "$TABLES" | grep -q "post_edit_histories"; then
             echo "✓ post_edit_histories table exists"
@@ -399,8 +357,12 @@ jobs:
           
           echo ""
           echo "=== Table structures ==="
-          mysql -h 127.0.0.1 -P 3307 -u root -proot -e "DESCRIBE flarum_clean.post_edit_histories"
-          mysql -h 127.0.0.1 -P 3307 -u root -proot -e "DESCRIBE flarum_clean.post_edit_histories_archive"
+          mysql -h 127.0.0.1 -u root -proot -e "DESCRIBE flarum_clean.post_edit_histories"
+          mysql -h 127.0.0.1 -u root -proot -e "DESCRIBE flarum_clean.post_edit_histories_archive"
+          
+          echo ""
+          echo "=== Migration records ==="
+          mysql -h 127.0.0.1 -u root -proot -e "SELECT * FROM flarum_clean.migrations WHERE extension LIKE '%diff%'"
           
           echo ""
           echo "✅ Clean installation successful"
