@@ -3,8 +3,9 @@
 namespace HuseyinFiliz\Diff\Commands;
 
 use Carbon\Carbon;
-use Flarum\Post\PostRepository;
+use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Revised;
+use Flarum\Post\PostRepository;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 use HuseyinFiliz\Diff\Models\Diff;
@@ -19,7 +20,7 @@ class RollbackToDiffHandler
     ) {
     }
 
-    /*
+    /**
      * Rollbacking to a revision will be considered as formal edit.
      * Thus, new edit will be performed for post using revision's content
      * that we want to rollback to.
@@ -48,8 +49,8 @@ class RollbackToDiffHandler
             $postContent = $diff->content;
 
             // if this is the last revision then its contents
-            // gotta be null, because we were retraining its contents
-            // from the post subject. We'll add a new revision after
+            // gotta be null, because we were retaining its contents
+            // from the post itself. We'll add a new revision after
             // this rollback operation so we need to convert this
             // null value into current content first. Revision after
             // rollbacking will be null again because it's the post itself.
@@ -60,23 +61,32 @@ class RollbackToDiffHandler
         }
 
         if ($post->content !== $postContent) {
-            // Flarum 2.x: Doğrudan post'u güncelle
-            $post->content = $postContent;
+            // Capture the CURRENT content before changing it
+            // This is crucial - we need the actual current content as oldContent
+            $oldContent = $post->content;
+
+            // Update the post directly
+            if ($post instanceof CommentPost) {
+                $post->setContentAttribute($postContent, $actor);
+            } else {
+                $post->content = $postContent;
+            }
             $post->edited_at = Carbon::now();
             $post->edited_user_id = $actor->id;
             $post->save();
 
-            // Revised event'i dispatch et (diğer extension'ların hook'ları için)
-            $this->events->dispatch(new Revised($post, $actor, $post->content));
+            // Dispatch Revised event with the CORRECT oldContent
+            // This ensures PostActions::whenRevisedPost() receives the right value
+            $this->events->dispatch(new Revised($post, $actor, $oldContent));
 
             $diff->rollbacked_user_id = $actor->id;
             $diff->rollbacked_at = Carbon::now();
 
-            // this is to track what's been rollbacked to what
+            // Query for the new revision that was just created by the event listener
             $newRevision = Diff::where('post_id', $diff->post_id)
                 ->where('revision', $maxRevisionCount + 1)
                 ->first();
-            
+
             if ($newRevision) {
                 $diff->rollbacked_to = $newRevision->id;
             }

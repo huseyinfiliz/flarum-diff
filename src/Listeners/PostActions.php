@@ -60,6 +60,10 @@ class PostActions
     /**
      * We'll always store the old content as new revision
      * because latest revision will always be the current post content.
+     *
+     * In Flarum 2.x, we prefer using $event->oldContent from the Revised event
+     * as it's more reliable, especially for operations like rollback where
+     * PostSaving event may not be triggered.
      */
     public function whenRevisedPost($event)
     {
@@ -85,8 +89,16 @@ class PostActions
             false
         );
 
+        // Prefer $event->oldContent from Revised event (Flarum 2.x)
+        // This is more reliable as it comes directly from the event dispatcher
+        // Fall back to self::$oldContent for compatibility with normal edits
+        $oldContent = property_exists($event, 'oldContent') && !empty($event->oldContent)
+            ? $event->oldContent
+            : self::$oldContent;
+
         $diffSubject = Diff::where('post_id', $event->post->id);
-        $maxRevisionCount = $diffSubject->exists() ? $diffSubject->max('revision') : 0;
+        $maxRevisionCount = $diffSubject->exists() ?
+            $diffSubject->max('revision') : 0;
 
         // if this is a first edit
         if ($maxRevisionCount == 0) {
@@ -94,7 +106,7 @@ class PostActions
                 0, // save original post as revision 0 before updating it
                 $event->post->id,
                 $event->post->user_id, // original post's creator
-                self::$oldContent
+                $oldContent
             );
 
             $diff->created_at = $event->post->created_at;
@@ -107,7 +119,7 @@ class PostActions
             $latestDiff = $diffSubject
               ->where('revision', $maxRevisionCount)
               ->firstOrFail();
-            $latestDiff->content = self::$oldContent;
+            $latestDiff->content = $oldContent;
             $latestDiff->save();
         }
 
