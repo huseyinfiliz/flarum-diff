@@ -2,10 +2,11 @@
 // Flarum 2.x uses CSS variables with [data-theme^=light/dark] selectors
 
 // Fallback LESS variables for functions like fade(), lighten(), darken()
-@body-bg-light: #fff;
-@body-bg-dark: #1b1b1b;
-@control-bg-light: #e8ecf3;
-@control-bg-dark: #2d2d2d;
+// Using diff- prefix to avoid conflicts with Flarum core variables
+@diff-body-bg-light: #fff;
+@diff-body-bg-dark: #1b1b1b;
+@diff-control-bg-light: #e8ecf3;
+@diff-control-bg-dark: #2d2d2d;
 
 // Default/fallback (for initial load)
 :root {
