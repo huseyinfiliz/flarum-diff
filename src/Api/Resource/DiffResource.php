@@ -52,8 +52,11 @@ class DiffResource extends AbstractDatabaseResource
 
     public function scope(Builder $query, OriginalContext $context): void
     {
-        // Diff modeli için özel visibility scope yok
-        // Sadece viewEditHistory permission kontrolü endpoints'te yapılıyor
+        $actor = $context->getActor();
+
+        $query->whereHas('post', function (Builder $postQuery) use ($actor) {
+            $postQuery->whereVisibleTo($actor);
+        });
     }
 
     public function endpoints(): array

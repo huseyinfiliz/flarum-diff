@@ -75,4 +75,12 @@ class Diff extends AbstractModel
     {
         return $this->belongsTo(User::class, 'rollbacked_user_id');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function post()
+    {
+        return $this->belongsTo(\Flarum\Post\Post::class, 'post_id');
+    }
 }
