@@ -67,10 +67,12 @@ return [
             }
         }
 
-        // workaround for creating MEDIUMBLOB type using Schemas
+        // workaround for creating MEDIUMBLOB type using Schemas on MySQL/MariaDB
         $connection = $schema->getConnection();
-        $prefix = $connection->getTablePrefix();
-        $connection->statement('ALTER TABLE '.$prefix.'post_edit_histories_archive MODIFY contents MEDIUMBLOB');
+        if (in_array($connection->getDriverName(), ['mysql', 'mariadb'])) {
+            $prefix = $connection->getTablePrefix();
+            $connection->statement('ALTER TABLE '.$prefix.'post_edit_histories_archive MODIFY contents MEDIUMBLOB');
+        }
     },
 
     /**
