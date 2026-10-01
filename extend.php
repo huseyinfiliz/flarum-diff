@@ -85,8 +85,20 @@ return [
                 }),
             Schema\Integer::make('revisionCount')
                 ->get(function ($post) {
-                    $diffSubject = Diff::where('post_id', $post->id);
-                    return $diffSubject->exists() ? $diffSubject->max('revision') : 0;
+                    if (! $post->edited_at) {
+                        return 0;
+                    }
+
+                    if ($post->relationLoaded('diff')) {
+                        return (int) ($post->diff->max('revision') ?? 0);
+                    }
+
+                    static $cache = [];
+                    if (! array_key_exists($post->id, $cache)) {
+                        $cache[$post->id] = (int) Diff::where('post_id', $post->id)->max('revision');
+                    }
+
+                    return $cache[$post->id];
                 }),
             Schema\Relationship\ToMany::make('diff')
                 ->type('diff')

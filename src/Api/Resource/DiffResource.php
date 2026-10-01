@@ -69,7 +69,7 @@ class DiffResource extends AbstractDatabaseResource
                 ->before(function (Context $context) {
                     $context->getActor()->assertCan('viewEditHistory');
                 })
-                ->eagerLoad(['actor', 'deletedUser', 'rollbackedUser']),
+                ->eagerLoad(['actor', 'deletedUser', 'rollbackedUser', 'post']),
 
             Endpoint\Show::make()
                 ->authenticated()
@@ -132,7 +132,7 @@ class DiffResource extends AbstractDatabaseResource
             Schema\Boolean::make('canDeleteEditHistory')
                 ->get(function (Diff $diff, Context $context) {
                     $actor = $context->getActor();
-                    $post = Post::find($diff->post_id);
+                    $post = $diff->relationLoaded('post') ? $diff->post : $this->getPost($diff->post_id);
                     if (!$post) return false;
 
                     $isSelf = $actor->id === $post->user_id;
@@ -176,6 +176,53 @@ class DiffResource extends AbstractDatabaseResource
         ];
     }
 
+    protected array $postsCache = [];
+    protected array $maxRevisionsCache = [];
+    protected array $compareWithCache = [];
+    protected array $oldRevisionContentCache = [];
+    protected array $differCache = [];
+
+    protected function getPost(int $postId): ?Post
+    {
+        return $this->postsCache[$postId] ??= Post::find($postId);
+    }
+
+    protected function getMaxRevision(int $postId): int
+    {
+        return $this->maxRevisionsCache[$postId] ??= (int) Diff::where('post_id', $postId)->max('revision');
+    }
+
+    protected function getCompareWith(Diff $diff): ?Diff
+    {
+        if (! array_key_exists($diff->id, $this->compareWithCache)) {
+            $this->compareWithCache[$diff->id] = Diff::where('post_id', $diff->post_id)
+                ->where('revision', '<', $diff->revision)
+                ->whereNull('deleted_at')
+                ->orderBy('revision', 'DESC')
+                ->first();
+        }
+
+        return $this->compareWithCache[$diff->id];
+    }
+
+    protected function getOldRevisionContent(Diff $diff, ?Diff $compareWith): string
+    {
+        if (isset($this->oldRevisionContentCache[$diff->id])) {
+            return $this->oldRevisionContentCache[$diff->id];
+        }
+
+        if ($compareWith === null) {
+            $post = $diff->relationLoaded('post') ? $diff->post : $this->getPost($diff->post_id);
+            $content = $post?->content ?? '';
+        } elseif ($compareWith->archive_id !== null) {
+            $content = $this->diffArchive->getArchivedContent($compareWith->archive_id, $compareWith->id);
+        } else {
+            $content = $compareWith->content ?? '';
+        }
+
+        return $this->oldRevisionContentCache[$diff->id] = $content;
+    }
+
     protected function getRevisionContent(Diff $diff): ?string
     {
         if ($diff->deleted_at !== null) {
@@ -186,10 +233,11 @@ class DiffResource extends AbstractDatabaseResource
             return $this->diffArchive->getArchivedContent($diff->archive_id, $diff->id);
         }
 
-        $revisionCount = Diff::where('post_id', $diff->post_id)->max('revision');
+        $revisionCount = $this->getMaxRevision($diff->post_id);
 
         if ($diff->revision == $revisionCount && $diff->content === null) {
-            return Post::findOrFail($diff->post_id)->content;
+            $post = $diff->relationLoaded('post') ? $diff->post : $this->getPost($diff->post_id);
+            return $post?->content;
         }
 
         return $diff->content;
@@ -223,8 +271,7 @@ class DiffResource extends AbstractDatabaseResource
             return null;
         }
 
-        $diffSubject = Diff::where('post_id', $diff->post_id);
-        $revisionCount = $diffSubject->max('revision');
+        $revisionCount = $this->getMaxRevision($diff->post_id);
 
         $comparisonArray = [
             'new' => [
@@ -233,9 +280,7 @@ class DiffResource extends AbstractDatabaseResource
             ],
         ];
 
-        $compareWith = $diffSubject->where('revision', '<', $diff->revision)
-            ->where('deleted_at', null)
-            ->orderBy('revision', 'DESC')->first();
+        $compareWith = $this->getCompareWith($diff);
 
         if ($diff->revision == 0 || ($diff->revision == $revisionCount && $compareWith === null)) {
             $comparisonArray['old'] = [
@@ -268,12 +313,8 @@ class DiffResource extends AbstractDatabaseResource
             return null;
         }
 
-        $diffSubject = Diff::where('post_id', $diff->post_id);
-        $revisionCount = $diffSubject->max('revision');
-
-        $compareWith = $diffSubject->where('revision', '<', $diff->revision)
-            ->where('deleted_at', null)
-            ->orderBy('revision', 'DESC')->first();
+        $revisionCount = $this->getMaxRevision($diff->post_id);
+        $compareWith = $this->getCompareWith($diff);
 
         // Preview mode - no comparison needed
         if ($diff->revision == 0 || ($diff->revision == $revisionCount && $compareWith === null)) {
@@ -281,31 +322,28 @@ class DiffResource extends AbstractDatabaseResource
         }
 
         // Get old revision content
-        $oldRevision = '';
-        if ($compareWith === null) {
-            $oldRevision = Post::findOrFail($diff->post_id)->content;
-        } elseif ($compareWith->archive_id !== null) {
-            $oldRevision = $this->diffArchive->getArchivedContent($compareWith->archive_id, $compareWith->id);
-        } else {
-            $oldRevision = $compareWith->content;
+        $oldRevision = $this->getOldRevisionContent($diff, $compareWith);
+
+        if (! isset($this->differCache[$diff->id])) {
+            $ignoreCase = $ignoreWhiteSpace = false;
+
+            if ($this->extensions->isEnabled('the-turk-quiet-edits')) {
+                $ignoreCase = $this->settings->get('the-turk-quiet-edits.ignoreCase', true);
+                $ignoreWhiteSpace = $this->settings->get('the-turk-quiet-edits.ignoreWhitespace', true);
+            }
+
+            $this->differCache[$diff->id] = new Differ(
+                explode("\n", $oldRevision),
+                explode("\n", $currentRevision),
+                [
+                    'context' => (int) $this->settings->get('huseyinfiliz-diff.neighborLines', 2),
+                    'ignoreCase' => $ignoreCase,
+                    'ignoreWhitespace' => $ignoreWhiteSpace,
+                ]
+            );
         }
 
-        $ignoreCase = $ignoreWhiteSpace = false;
-
-        if ($this->extensions->isEnabled('the-turk-quiet-edits')) {
-            $ignoreCase = $this->settings->get('the-turk-quiet-edits.ignoreCase', true);
-            $ignoreWhiteSpace = $this->settings->get('the-turk-quiet-edits.ignoreWhitespace', true);
-        }
-
-        $differ = new Differ(
-            explode("\n", $oldRevision),
-            explode("\n", $currentRevision),
-            [
-                'context' => (int) $this->settings->get('huseyinfiliz-diff.neighborLines', 2),
-                'ignoreCase' => $ignoreCase,
-                'ignoreWhitespace' => $ignoreWhiteSpace,
-            ]
-        );
+        $differ = $this->differCache[$diff->id];
 
         $rendererOptions = [
             'detailLevel' => $this->settings->get('huseyinfiliz-diff.detailLevel', 'line'),
