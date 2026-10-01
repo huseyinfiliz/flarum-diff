@@ -1,6 +1,6 @@
 # Diff for Flarum 2.x
 
-[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/huseyinfiliz/flarum-diff/blob/master/LICENSE) [![Latest Stable Version](https://img.shields.io/packagist/v/huseyinfiliz/flarum-diff.svg)](https://packagist.org/packages/huseyinfiliz/flarum-diff) [![Total Downloads](https://img.shields.io/packagist/dt/huseyinfiliz/flarum-diff.svg)](https://packagist.org/packages/huseyinfiliz/flarum-diff)
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/huseyinfiliz/flarum-diff/blob/2.x/LICENSE) [![Latest Stable Version](https://img.shields.io/packagist/v/huseyinfiliz/flarum-diff.svg)](https://packagist.org/packages/huseyinfiliz/flarum-diff) [![Total Downloads](https://img.shields.io/packagist/dt/huseyinfiliz/flarum-diff.svg)](https://packagist.org/packages/huseyinfiliz/flarum-diff)
 
 This extension adds a "post revision history" feature to your [Flarum](https://github.com/flarum) forum.
 
@@ -27,7 +27,7 @@ Also, it won't load (and cache) anything until you click the "Edited" button so 
 
 ## Requirements
 
-![php](https://img.shields.io/badge/php-%E2%89%A58.1-blue?style=flat-square) ![ext-iconv](https://img.shields.io/badge/ext-iconv-brightgreen?style=flat-square)
+![php](https://img.shields.io/badge/php-%E2%89%A58.2-blue?style=flat-square) ![ext-iconv](https://img.shields.io/badge/ext-iconv-brightgreen?style=flat-square)
 
 You can check your php version by running `php -v` and check if `iconv` is installed by running `php --ri iconv` (which should display `iconv support => enabled`).
 
@@ -100,7 +100,7 @@ If you want to archive old revisions, please consider enabling _cron job option_
 
 - [Flarum Discuss post](https://discuss.flarum.org/d/22779-diff-for-flarum)
 - [Source code on GitHub](https://github.com/huseyinfiliz/flarum-diff)
-- [Changelog](https://github.com/huseyinfiliz/flarum-diff/blob/master/CHANGELOG.md)
+- [Changelog](https://github.com/huseyinfiliz/flarum-diff/blob/2.x/CHANGELOG.md)
 - [Report an issue](https://github.com/huseyinfiliz/flarum-diff/issues)
 - [Download via Packagist](https://packagist.org/packages/huseyinfiliz/flarum-diff)
 - [Original extension (Flarum 1.x)](https://github.com/the-turk/flarum-diff)

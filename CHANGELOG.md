@@ -2,7 +2,21 @@
 
 ## 2.0.0
 
-This release brings full compatibility with Flarum 2.x.
+This release brings full compatibility with Flarum 2.x and marks the first stable release of `huseyinfiliz/flarum-diff`.
+
+### Security
+- **Post Visibility**: Enforced post visibility checks in `DiffResource::scope()` to prevent revision leakage for hidden posts or restricted tags/discussions.
+
+### Performance
+- **N+1 Query Optimizations**: Resolved N+1 queries in `revisionCount`, `canDeleteEditHistory`, and diff HTML generation through eager loading, request-level caching, and reusable Differ instances.
+
+### Improvements & Fixes
+- **Modernized Frontend**: Refactored `DiffModal` to use reactive Mithril state instead of direct jQuery DOM manipulation.
+- **Fixed Pagination Offset**: Corrected offset calculation and total loaded revision count in `DiffListState`.
+- **Removed Unnecessary PATCH**: Removed empty `post.save({})` call on revision actions, relying on clean `m.redraw()`.
+- **Deleted User Handling**: Added null checks for deleted users in diff buttons and modals.
+- **Cross-Database Compatibility**: Restricted MySQL-specific `MODIFY contents MEDIUMBLOB` statement to MySQL and MariaDB drivers.
+- **CI Workflows**: Added automated backend and frontend GitHub Actions workflows based on Flarum 2.x reusable templates.
 
 ### Changed
 - **Flarum 2.x compatibility** - Full support for Flarum 2.0 and later versions

@@ -1,6 +1,6 @@
 # Flarum 2.x için Diff
 
-[![MIT lisansı](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/huseyinfiliz/flarum-diff/blob/master/LICENSE) [![Son Stabil Sürüm](https://img.shields.io/packagist/v/huseyinfiliz/flarum-diff.svg)](https://packagist.org/packages/huseyinfiliz/flarum-diff) [![Toplam İndirme](https://img.shields.io/packagist/dt/huseyinfiliz/flarum-diff.svg)](https://packagist.org/packages/huseyinfiliz/flarum-diff)
+[![MIT lisansı](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/huseyinfiliz/flarum-diff/blob/2.x/LICENSE) [![Son Stabil Sürüm](https://img.shields.io/packagist/v/huseyinfiliz/flarum-diff.svg)](https://packagist.org/packages/huseyinfiliz/flarum-diff) [![Toplam İndirme](https://img.shields.io/packagist/dt/huseyinfiliz/flarum-diff.svg)](https://packagist.org/packages/huseyinfiliz/flarum-diff)
 
 Bu eklenti [Flarum](https://github.com/flarum) forumunuza "düzenleme geçmişi" özelliği eklemenizi sağlar.
 
@@ -25,7 +25,7 @@ Ekran görüntüleri:
 
 ## Gereksinimler
 
-![php](https://img.shields.io/badge/php-%E2%89%A58.1-blue?style=flat-square) ![ext-iconv](https://img.shields.io/badge/ext-iconv-brightgreen?style=flat-square)
+![php](https://img.shields.io/badge/php-%E2%89%A58.2-blue?style=flat-square) ![ext-iconv](https://img.shields.io/badge/ext-iconv-brightgreen?style=flat-square)
 
 php sürümünüzü `php -v` komutunu çalıştırarak ve `iconv` paketinin yüklü olup olmadığını `php --ri iconv` komutunu çalıştırarak (`iconv support => enabled` çıktısını görmelisiniz) öğrenebilirsiniz.
 
@@ -98,7 +98,7 @@ Eski düzenlemeleri arşivlemek istiyorsanız _zamanlanmış görev seçeneğini
 
 - [Flarum tartışma konusu](https://discuss.flarum.org/d/22779-diff-for-flarum)
 - [GitHub üzerindeki kaynak kodu](https://github.com/huseyinfiliz/flarum-diff)
-- [Değişiklikler](https://github.com/huseyinfiliz/flarum-diff/blob/master/CHANGELOG.md)
+- [Değişiklikler](https://github.com/huseyinfiliz/flarum-diff/blob/2.x/CHANGELOG.md)
 - [Sorun bildir](https://github.com/huseyinfiliz/flarum-diff/issues)
 - [Packagist aracılığıyla indir](https://packagist.org/packages/huseyinfiliz/flarum-diff)
 - [Orijinal eklenti (Flarum 1.x)](https://github.com/the-turk/flarum-diff)

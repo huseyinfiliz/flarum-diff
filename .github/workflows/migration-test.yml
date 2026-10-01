@@ -2,12 +2,12 @@ name: Migration Test (1.8 → 2.x)
 
 on:
   push:
-    branches: [main, master]
+    branches: [2.x]
     paths:
       - 'migrations/**'
       - '.github/workflows/migration-test.yml'
   pull_request:
-    branches: [main, master]
+    branches: [2.x]
   workflow_dispatch:
 
 jobs:

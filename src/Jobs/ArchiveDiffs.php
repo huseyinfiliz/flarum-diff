@@ -68,7 +68,7 @@ class ArchiveDiffs
                     // archive revisions one by one
                     foreach ($diffsToBeArchived as $diff) {
                         $this->log->info(
-                            "[the-turk/flarum-diff] |> archiving revision #{$diff->id} from post #{$postId}"
+                            "[huseyinfiliz/flarum-diff] |> archiving revision #{$diff->id} from post #{$postId}"
                         );
 
                         $archiveContent = $this->diffArchive->archiveContent(
@@ -97,7 +97,7 @@ class ArchiveDiffs
     {
         $time = Carbon::now();
         $this->log->info(
-            "[the-turk/flarum-diff] |> archive post's revisions {$time}"
+            "[huseyinfiliz/flarum-diff] |> archive post's revisions {$time}"
         );
         $postsToBeArchived = Diff::select('post_id')
             ->selectRaw('MAX(revision) AS revision')

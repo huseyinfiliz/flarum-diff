@@ -4,4 +4,3 @@
 export default function redrawPost() {
   m.redraw();
 }
-

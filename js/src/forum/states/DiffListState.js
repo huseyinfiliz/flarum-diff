@@ -73,7 +73,7 @@ export default class DiffListState {
 
     if (results.length) app.cache.diffs[this.post.id()].push(results);
 
-    this.moreResults = !!(results.payload?.links?.next);
+    this.moreResults = !!results.payload?.links?.next;
 
     return results;
   }
