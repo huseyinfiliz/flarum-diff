@@ -41,7 +41,7 @@ class ArchiveDiffs
      */
     public function archiveForPost(int $postId, int $maxRevision)
     {
-        if (!($maxRevision >= $this->revLimit)) {
+        if (! ($maxRevision >= $this->revLimit)) {
             return;
         }
         // this is the m value

@@ -109,7 +109,7 @@ class PostActions
         // if they want to archive old revisions
         // without using cron jobs or `diff:archive` command
         // ...we're cool with it.
-        if ($archiveOlds && !$useCrons) {
+        if ($archiveOlds && ! $useCrons) {
             $this->job->archiveForPost($event->post->id, $maxRevisionCount + 1);
         }
     }

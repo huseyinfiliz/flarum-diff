@@ -32,8 +32,8 @@ class RollbackToDiffHandler
         $post = $this->posts->findOrFail($diff->post_id, $actor);
         $isSelf = $actor->id === $post->user_id;
 
-        if (!$actor->can('rollbackEditHistory')
-            && !($isSelf && $actor->can('selfRollbackEditHistory'))) {
+        if (! $actor->can('rollbackEditHistory')
+            && ! ($isSelf && $actor->can('selfRollbackEditHistory'))) {
             throw new PermissionDeniedException();
         }
 

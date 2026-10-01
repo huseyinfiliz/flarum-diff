@@ -5,7 +5,6 @@ namespace HuseyinFiliz\Diff\Tests\integration\api;
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
-use Flarum\Post\CommentPost;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;

@@ -14,7 +14,7 @@ class DiffSearcher extends AbstractSearcher
         return Diff::query()->whereHas('post', function (Builder $postQuery) use ($actor) {
             $postQuery->whereVisibleTo($actor);
 
-            if (!$actor->hasPermission('discussion.hidePosts')) {
+            if (! $actor->hasPermission('discussion.hidePosts')) {
                 $postQuery->where(function (Builder $q) use ($actor) {
                     $q->whereNull('hidden_at')
                       ->orWhere('user_id', $actor->id);

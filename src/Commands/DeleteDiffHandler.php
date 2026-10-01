@@ -25,8 +25,8 @@ class DeleteDiffHandler
         $post = $this->posts->findOrFail($diff->post_id, $actor);
         $isSelf = $actor->id === $post->user_id;
 
-        if (!$actor->can('deleteEditHistory')
-            && !($isSelf && $actor->can('selfDeleteEditHistory'))) {
+        if (! $actor->can('deleteEditHistory')
+            && ! ($isSelf && $actor->can('selfDeleteEditHistory'))) {
             throw new PermissionDeniedException();
         }
 

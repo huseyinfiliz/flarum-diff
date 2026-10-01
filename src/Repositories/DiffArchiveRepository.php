@@ -115,7 +115,7 @@ class DiffArchiveRepository
         // then it's meanless to keep post's row.
         // so we're deleting row instead of deleting the revision
         // in archive contents.
-        if (!($newRevisionCount > 0)) {
+        if (! ($newRevisionCount > 0)) {
             return $query->delete();
         }
 

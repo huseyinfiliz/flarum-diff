@@ -57,7 +57,7 @@ class DiffResource extends AbstractDatabaseResource
         $query->whereHas('post', function (Builder $postQuery) use ($actor) {
             $postQuery->whereVisibleTo($actor);
 
-            if (!$actor->hasPermission('discussion.hidePosts')) {
+            if (! $actor->hasPermission('discussion.hidePosts')) {
                 $postQuery->where(function (Builder $q) use ($actor) {
                     $q->whereNull('hidden_at')
                       ->orWhere('user_id', $actor->id);
@@ -113,8 +113,8 @@ class DiffResource extends AbstractDatabaseResource
                     $post = $this->posts->findOrFail($diff->post_id, $actor);
                     $isSelf = $actor->id === $post->user_id;
 
-                    if (!$actor->can('rollbackEditHistory')
-                        && !($isSelf && $actor->can('selfRollbackEditHistory'))) {
+                    if (! $actor->can('rollbackEditHistory')
+                        && ! ($isSelf && $actor->can('selfRollbackEditHistory'))) {
                         throw new \Flarum\User\Exception\PermissionDeniedException();
                     }
 
