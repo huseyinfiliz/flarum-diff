@@ -13,13 +13,13 @@ return [
         if ($schema->hasTable('post_edit_histories')) {
             $connection = $schema->getConnection();
             $count = $connection->table('post_edit_histories')->count();
-            
+
             if ($count > 0) {
                 // Table exists with data - this is an upgrade from the-turk/flarum-diff
                 // Do NOT drop the table, preserve all revision history
                 return;
             }
-            
+
             // Table exists but is empty - safe to recreate for clean schema
             // First, drop self-referencing foreign key
             try {
@@ -29,7 +29,7 @@ return [
             } catch (\Exception $e) {
                 // FK might not exist
             }
-            
+
             // Drop foreign key to archive table if exists
             try {
                 $schema->table('post_edit_histories', function (Blueprint $table) {
@@ -38,7 +38,7 @@ return [
             } catch (\Exception $e) {
                 // FK might not exist
             }
-            
+
             $schema->dropIfExists('post_edit_histories');
         }
 
@@ -85,7 +85,7 @@ return [
             } catch (\Exception $e) {
                 // FK might not exist
             }
-            
+
             try {
                 $schema->table('post_edit_histories', function (Blueprint $table) {
                     $table->dropForeign(['archive_id']);
@@ -94,7 +94,7 @@ return [
                 // FK might not exist
             }
         }
-        
+
         $schema->dropIfExists('post_edit_histories');
     },
 ];

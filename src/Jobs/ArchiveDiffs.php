@@ -4,9 +4,9 @@ namespace HuseyinFiliz\Diff\Jobs;
 
 use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Psr\Log\LoggerInterface;
 use HuseyinFiliz\Diff\Models\Diff;
 use HuseyinFiliz\Diff\Repositories\DiffArchiveRepository;
+use Psr\Log\LoggerInterface;
 
 /**
  * We're using a linear equation (y=mx+b) where the x is post's revision count.

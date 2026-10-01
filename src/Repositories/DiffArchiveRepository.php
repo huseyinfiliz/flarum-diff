@@ -2,8 +2,8 @@
 
 namespace HuseyinFiliz\Diff\Repositories;
 
-use Illuminate\Support\Arr;
 use HuseyinFiliz\Diff\Models\DiffArchive;
+use Illuminate\Support\Arr;
 
 class DiffArchiveRepository
 {

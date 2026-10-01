@@ -16,11 +16,11 @@ use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Flarum\Post\Post;
 use Flarum\Search\Database\DatabaseSearchDriver;
-use Illuminate\Console\Scheduling\Event;
 use HuseyinFiliz\Diff\Console\ArchiveCommand;
 use HuseyinFiliz\Diff\Models\Diff;
 use HuseyinFiliz\Diff\Search\DiffSearcher;
 use HuseyinFiliz\Diff\Search\PostIdFilter;
+use Illuminate\Console\Scheduling\Event;
 
 return [
     (new Extend\Frontend('admin'))
@@ -31,7 +31,7 @@ return [
         ->css(__DIR__.'/less/forum.less')
         ->js(__DIR__.'/js/dist/forum.js'),
 
-    (new Extend\Locales(__DIR__.'/locale')),
+    new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Model(Post::class))
         ->hasMany('diff', Diff::class, 'post_id'),
@@ -73,6 +73,7 @@ return [
                 ->get(function ($post, $context) {
                     $actor = $context->getActor();
                     $isSelf = $actor->id === $post->user_id;
+
                     return $actor->can('deleteEditHistory')
                         || ($isSelf && $actor->can('selfDeleteEditHistory'));
                 }),
@@ -80,6 +81,7 @@ return [
                 ->get(function ($post, $context) {
                     $actor = $context->getActor();
                     $isSelf = $actor->id === $post->user_id;
+
                     return $actor->can('rollbackEditHistory')
                         || ($isSelf && $actor->can('selfRollbackEditHistory'));
                 }),

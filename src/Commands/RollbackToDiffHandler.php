@@ -7,9 +7,9 @@ use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Revised;
 use Flarum\Post\PostRepository;
 use Flarum\User\Exception\PermissionDeniedException;
-use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 use HuseyinFiliz\Diff\Models\Diff;
 use HuseyinFiliz\Diff\Repositories\DiffArchiveRepository;
+use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 
 class RollbackToDiffHandler
 {

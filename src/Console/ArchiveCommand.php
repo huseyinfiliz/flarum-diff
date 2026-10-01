@@ -3,8 +3,8 @@
 namespace HuseyinFiliz\Diff\Console;
 
 use Carbon\Carbon;
-use Illuminate\Console\Command;
 use HuseyinFiliz\Diff\Jobs\ArchiveDiffs;
+use Illuminate\Console\Command;
 
 class ArchiveCommand extends Command
 {

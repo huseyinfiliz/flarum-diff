@@ -12,16 +12,16 @@ use Flarum\Post\CommentPost;
 use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
+use HuseyinFiliz\Diff\Commands\DeleteDiff;
+use HuseyinFiliz\Diff\Commands\RollbackToDiff;
+use HuseyinFiliz\Diff\Models\Diff;
+use HuseyinFiliz\Diff\Repositories\DiffArchiveRepository;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Jfcherng\Diff\Differ;
 use Jfcherng\Diff\Factory\RendererFactory;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use HuseyinFiliz\Diff\Commands\DeleteDiff;
-use HuseyinFiliz\Diff\Commands\RollbackToDiff;
-use HuseyinFiliz\Diff\Models\Diff;
-use HuseyinFiliz\Diff\Repositories\DiffArchiveRepository;
 use Tobyz\JsonApiServer\Context as OriginalContext;
 
 /**
@@ -140,9 +140,12 @@ class DiffResource extends AbstractDatabaseResource
                 ->get(function (Diff $diff, Context $context) {
                     $actor = $context->getActor();
                     $post = $diff->relationLoaded('post') ? $diff->post : $this->getPost($diff->post_id);
-                    if (!$post) return false;
+                    if (! $post) {
+                        return false;
+                    }
 
                     $isSelf = $actor->id === $post->user_id;
+
                     return $actor->can('deleteEditHistory')
                         || ($isSelf && $actor->can('selfDeleteEditHistory'));
                 }),
@@ -244,6 +247,7 @@ class DiffResource extends AbstractDatabaseResource
 
         if ($diff->revision == $revisionCount && $diff->content === null) {
             $post = $diff->relationLoaded('post') ? $diff->post : $this->getPost($diff->post_id);
+
             return $post?->content;
         }
 
@@ -357,11 +361,12 @@ class DiffResource extends AbstractDatabaseResource
             'separateBlock' => (bool) $this->settings->get('huseyinfiliz-diff.separateBlock', true),
             'lineNumbers' => false,
             'wrapperClasses' => ['HuseyinFilizDiff', 'CustomDiff', 'diff-wrapper'],
-            'resultForIdenticals' => '<div class="noDiff"><p>' . $this->translator->trans('huseyinfiliz-diff.forum.noDiff') . '</p></div>',
+            'resultForIdenticals' => '<div class="noDiff"><p>'.$this->translator->trans('huseyinfiliz-diff.forum.noDiff').'</p></div>',
             'mergeThreshold' => \HuseyinFiliz\Diff\Jobs\ArchiveDiffs::sanitizeFloat($this->settings->get('huseyinfiliz-diff.mergeThreshold', 0.8)),
         ];
 
         $renderer = RendererFactory::make($rendererType, $rendererOptions);
+
         return $renderer->render($differ);
     }
 }

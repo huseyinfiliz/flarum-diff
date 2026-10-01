@@ -6,9 +6,9 @@ use Carbon\Carbon;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Post\Event\Revised as PostRevised;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Events\Dispatcher;
 use HuseyinFiliz\Diff\Jobs\ArchiveDiffs;
 use HuseyinFiliz\Diff\Models\Diff;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class PostActions
 {
@@ -25,9 +25,9 @@ class PostActions
     {
         $events->listen(
             // support for my 'the-turk/flarum-quiet-edits' extension
-            ($this->extensions->isEnabled('the-turk-quiet-edits')
+            $this->extensions->isEnabled('the-turk-quiet-edits')
             ? \TheTurk\QuietEdits\Events\PostWasRevisedLoudly::class
-            : PostRevised::class),
+            : PostRevised::class,
             [$this, 'whenRevisedPost']
         );
     }

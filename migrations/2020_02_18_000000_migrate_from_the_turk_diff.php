@@ -10,12 +10,12 @@ use Illuminate\Database\Schema\Builder;
 return [
     'up' => function (Builder $schema) {
         $connection = $schema->getConnection();
-        
+
         // Check if there are any migrations from the old extension
         $oldMigrations = $connection->table('migrations')
             ->where('extension', 'the-turk-diff')
             ->count();
-        
+
         if ($oldMigrations > 0) {
             // Update the extension name in migrations table to prevent re-running migrations
             // This preserves all existing data in post_edit_histories and post_edit_histories_archive

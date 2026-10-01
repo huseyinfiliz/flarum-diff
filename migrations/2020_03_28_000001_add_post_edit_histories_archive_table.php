@@ -13,13 +13,13 @@ return [
         if ($schema->hasTable('post_edit_histories_archive')) {
             $connection = $schema->getConnection();
             $count = $connection->table('post_edit_histories_archive')->count();
-            
+
             if ($count > 0) {
                 // Table exists with data - this is an upgrade from the-turk/flarum-diff
                 // Do NOT drop the table, preserve all archived data
                 return;
             }
-            
+
             // Table exists but is empty - safe to recreate for clean schema
             // But first, we need to drop the foreign key from post_edit_histories
             if ($schema->hasTable('post_edit_histories')) {
@@ -39,7 +39,7 @@ return [
                     }
                 }
             }
-            
+
             $schema->dropIfExists('post_edit_histories_archive');
         }
 
@@ -89,7 +89,7 @@ return [
                 // FK might not exist
             }
         }
-        
+
         $schema->dropIfExists('post_edit_histories_archive');
     },
 ];
