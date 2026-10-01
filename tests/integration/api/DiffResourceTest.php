@@ -42,8 +42,8 @@ class DiffResourceTest extends TestCase
                 ['group_id' => 4, 'permission' => 'discussion.hidePosts'],
             ],
             'discussions' => [
-                ['id' => 1, 'title' => 'Public Discussion', 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 2, 'created_at' => Carbon::now()],
-                ['id' => 2, 'title' => 'Hidden Discussion', 'user_id' => 1, 'first_post_id' => 3, 'comment_count' => 1, 'hidden_at' => Carbon::now(), 'created_at' => Carbon::now()],
+                ['id' => 1, 'title' => 'Public Discussion', 'slug' => 'public-discussion', 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 2, 'created_at' => Carbon::now()],
+                ['id' => 2, 'title' => 'Hidden Discussion', 'slug' => 'hidden-discussion', 'user_id' => 1, 'first_post_id' => 3, 'comment_count' => 1, 'hidden_at' => Carbon::now(), 'created_at' => Carbon::now()],
             ],
             'posts' => [
                 // Post 1: Public post with revisions
@@ -118,7 +118,7 @@ class DiffResourceTest extends TestCase
             $this->request('GET', '/api/diff')
         );
 
-        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode());
     }
 
     public function test_user_can_view_revisions_of_public_post()
