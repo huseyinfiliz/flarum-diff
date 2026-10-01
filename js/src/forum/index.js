@@ -35,11 +35,4 @@ app.initializers.add('huseyinfiliz-diff', () => {
       delete app.cache.diffs[this.attrs.post.id()];
     }
   });
-
-  // Prevent dropdown from closing when user clicks on deleted diff
-  extend(Page.prototype, 'oninit', function () {
-    $('body').on('click', 'li.ParentDiff.DeletedDiff, li.SubDiff', function (e) {
-      e.stopPropagation();
-    });
-  });
 });

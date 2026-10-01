@@ -1,6 +1,7 @@
 import app from 'flarum/common/app';
 import Modal from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
+import Link from 'flarum/common/components/Link';
 import Tooltip from 'flarum/common/components/Tooltip';
 import username from 'flarum/common/helpers/username';
 import humanTime from 'flarum/common/helpers/humanTime';
@@ -19,6 +20,8 @@ import DiffList from './DiffList';
 export default class DiffModal extends Modal {
   oninit(vnode) {
     super.oninit(vnode);
+
+    this.contentType = (app.session.user && app.session.user.preferences().diffRenderer) || 'sideBySide';
 
     /**
      * Whether or not the modal is loading.
@@ -55,25 +58,31 @@ export default class DiffModal extends Modal {
   }
 
   title() {
+    const actor = this.attrs.listState.selectedItem.actor();
+
     return [
       // we also should consider deleted users here
-      this.attrs.listState.selectedItem.actor().username() ? <Avatar user={this.attrs.listState.selectedItem.actor()} /> : '',
+      actor && actor.username() ? <Avatar user={actor} /> : '',
       this.attrs.listState.selectedItem.revision() != 0
         ? // x edited y ago
           app.translator.trans('huseyinfiliz-diff.forum.editedInfo', {
-            username: (
-              <a href={app.route.user(this.attrs.listState.selectedItem.actor())} config={m.route}>
-                {username(this.attrs.listState.selectedItem.actor())}
-              </a>
+            username: actor ? (
+              <Link href={app.route.user(actor)}>
+                {username(actor)}
+              </Link>
+            ) : (
+              username(null)
             ),
             ago: humanTime(this.attrs.listState.selectedItem.createdAt()),
           })
         : // x created y ago
           app.translator.trans('huseyinfiliz-diff.forum.createdInfo', {
-            username: (
-              <a href={app.route.user(this.attrs.listState.selectedItem.actor())} config={m.route}>
-                {username(this.attrs.listState.selectedItem.actor())}
-              </a>
+            username: actor ? (
+              <Link href={app.route.user(actor)}>
+                {username(actor)}
+              </Link>
+            ) : (
+              username(null)
             ),
             ago: humanTime(this.attrs.listState.post.createdAt()),
           }),
@@ -91,12 +100,6 @@ export default class DiffModal extends Modal {
   }
 
   config(vnode) {
-    // workaround for missing 'in' class on .ModalManager
-    // after redrawing the DiffList component.
-    // because i'm done with this shit.
-    // https://github.com/flarum/core/pull/2080
-    if (this.showing && !$('.ModalManager').hasClass('in')) $('.ModalManager').addClass('in');
-
     // we should re-Initialize this component after user
     // clicks a different revision while modal is open
     if (this.diffId === this.attrs.listState.selectedItem.id()) return;
@@ -109,9 +112,13 @@ export default class DiffModal extends Modal {
     if (this.attrs.listState.selectedItem.revision() != 0 && this.comparisonBetween.new.revision != this.comparisonBetween.old.revision) {
       // we'll use Side By Side renderer as a fallback
       // if there is no renderer choice
-      return this.setDiffContent(app.session.user.preferences().diffRenderer ? app.session.user.preferences().diffRenderer : 'sideBySide');
+      this.setDiffContent(
+        app.session.user && app.session.user.preferences().diffRenderer
+          ? app.session.user.preferences().diffRenderer
+          : 'sideBySide'
+      );
     } else {
-      return this.setDiffContent('preview');
+      this.setDiffContent('preview');
     }
   }
 
@@ -131,7 +138,7 @@ export default class DiffModal extends Modal {
           }
           {(this.attrs.listState.post.canDeleteEditHistory() &&
             this.attrs.listState.selectedItem.revision() != this.attrs.listState.post.revisionCount()) ||
-          (this.attrs.listState.post.canRollbackEditHistory() && this.$('.DeletedDiff').length != this.attrs.listState.post.revisionCount()) ? (
+          (this.attrs.listState.post.canRollbackEditHistory() && this.comparisonBetween && this.comparisonBetween.old && this.comparisonBetween.old.diffId) ? (
             <Dropdown
               className="diffCotrollerDropdown App-primaryControl"
               icon="fas fa-ellipsis-v"
@@ -292,6 +299,7 @@ export default class DiffModal extends Modal {
                     <div className="tooltip-wrapper">
                       <Button
                         icon={switchData.icon}
+                        disabled={this.contentType === switchData.type}
                         onclick={() => this.setDiffContent(switchData.type)}
                         className={`Button Button--icon Button--link ${switchData.class}`}
                       />
@@ -301,7 +309,12 @@ export default class DiffModal extends Modal {
               : ''}
             <Tooltip showOnFocus={false} text={app.translator.trans('huseyinfiliz-diff.forum.tooltips.preview')}>
               <div className="tooltip-wrapper">
-                <Button icon="far fa-eye" onclick={() => this.setDiffContent('preview')} className="Button Button--icon Button--link diffPreview" />
+                <Button
+                  icon="far fa-eye"
+                  disabled={this.contentType === 'preview'}
+                  onclick={() => this.setDiffContent('preview')}
+                  className="Button Button--icon Button--link diffPreview"
+                />
               </div>
             </Tooltip>
           </div>
@@ -311,7 +324,7 @@ export default class DiffModal extends Modal {
         <div className="diff-grid-item diff-grid-info">
           <div className="revisionInfo">
             <h4>{app.translator.trans('huseyinfiliz-diff.forum.revisions', { revisionCount })}</h4>
-            <p class="diffInfoContainer" />
+            <p className="diffInfoContainer">{this.getInfoContent(this.contentType === 'preview')}</p>
           </div>
         </div>
 
@@ -323,18 +336,19 @@ export default class DiffModal extends Modal {
         {/* Diffs Container */}
         <div className="diff-grid-item diff-grid-diff">
           <div className="diffContents">
-            {
-              // .previewContainer is hidden by default
-              // we'll do some nasty switches later
-            }
-            <div
-              className={
-                'previewContainer Post-body' + (app.forum.attribute('textFormattingForDiffPreviews') === false ? ' diff-skip-formatting' : '')
-              }
-            >
-              {this.renderHtml(this.attrs.listState.selectedItem.data.attributes.previewHtml)}
-            </div>
-            <div className="diffContainer" />
+            {this.contentType === 'preview' ? (
+              <div
+                className={
+                  'previewContainer Post-body' + (app.forum.attribute('textFormattingForDiffPreviews') === false ? ' diff-skip-formatting' : '')
+                }
+              >
+                {this.renderHtml(this.attrs.listState.selectedItem.previewHtml())}
+              </div>
+            ) : (
+              <div className="diffContainer">
+                {this.renderHtml(this.getCurrentDiffHtml())}
+              </div>
+            )}
           </div>
         </div>
         {this.loading ? <LoadingIndicator containerClassName="DiffModal-loading" size="large" /> : ''}
@@ -382,123 +396,70 @@ export default class DiffModal extends Modal {
    * @param {string} content
    */
   renderHtml(content) {
-    return m.trust(content);
+    return content ? m.trust(content) : '';
   }
 
-  /**
-   * Insert rendered diff views into their container
-   * and disable active views' buttons.
-   * Disabling buttons is just for indicating
-   * so frontend looks good but the backend sucks.
-   *
-   * @param {string} contentType
-   */
-  setDiffContent(contentType) {
-    let diffContentHtml;
-    const $diffContainer = this.$('.diffContainer');
-    const $previewContainer = this.$('.previewContainer');
-
-    // buttons
-    const $sideBySideButton = this.$('.Button.sideBySideView');
-    const $inlineButton = this.$('.Button.inlineView');
-    const $combinedButton = this.$('.Button.combinedView');
-    const $previewButton = this.$('.Button.diffPreview');
-
-    if (contentType !== 'preview') {
-      if (contentType === 'sideBySide') {
-        diffContentHtml = this.renderHtml(this.attrs.listState.selectedItem.data.attributes.sideBySideHtml);
-        $sideBySideButton.prop('disabled', true);
-        // what a dynasty - LOL
-        $sideBySideButton.parent().siblings().children().prop('disabled', false);
-      } else if (contentType === 'inline') {
-        diffContentHtml = this.renderHtml(this.attrs.listState.selectedItem.data.attributes.inlineHtml);
-        $inlineButton.prop('disabled', true);
-        $inlineButton.parent().siblings().children().prop('disabled', false);
-      } else if (contentType === 'combined') {
-        diffContentHtml = this.renderHtml(this.attrs.listState.selectedItem.data.attributes.combinedHtml);
-        $combinedButton.prop('disabled', true);
-        $combinedButton.parent().siblings().children().prop('disabled', false);
-      }
-    } else {
-      $diffContainer.hide();
-      this.$('.previewContainer').show();
-
-      $previewButton.prop('disabled', true);
-      $previewButton.parent().siblings().children().prop('disabled', false);
-      return this.setInfoContent(true);
+  getCurrentDiffHtml() {
+    const item = this.attrs.listState.selectedItem;
+    if (this.contentType === 'sideBySide') {
+      return item.sideBySideHtml();
+    } else if (this.contentType === 'inline') {
+      return item.inlineHtml();
+    } else if (this.contentType === 'combined') {
+      return item.combinedHtml();
     }
+    return null;
+  }
 
-    if (diffContentHtml) {
-      $diffContainer.html(diffContentHtml.children);
+  setDiffContent(contentType) {
+    this.contentType = contentType;
 
-      if ($previewContainer.is(':visible')) {
-        $diffContainer.show();
-        $previewContainer.hide();
-      }
-
-      // let's remember their renderer choice
+    if (contentType !== 'preview' && app.session.user) {
       app.session.user.savePreferences({
         diffRenderer: contentType,
       });
-
-      return this.setInfoContent();
     }
 
-    return;
+    m.redraw();
   }
 
-  /**
-   * Set informations about comparisons.
-   *
-   * @param {Boolean} preview
-   */
-  setInfoContent(preview = false) {
-    const $infoContainer = this.$('.diffInfoContainer');
+  getInfoContent(preview = false) {
+    if (!this.comparisonBetween || !this.comparisonBetween.new) {
+      return '';
+    }
 
-    let infoContentHtml =
-      !preview && this.attrs.listState.selectedItem.revision() != 0 && this.comparisonBetween.new.revision != this.comparisonBetween.old.revision
-        ? extractText(
-            app.translator.trans('huseyinfiliz-diff.forum.differences.sentence', {
-              old:
-                this.comparisonBetween.old.revision == -1
-                  ? /* we're viewing differences between current content and {new} */
-                    app.translator.trans('huseyinfiliz-diff.forum.differences.currentContent')
-                  : this.comparisonBetween.old.revision == 0
-                    ? /* we're viewing differences between original content and {new} */
-                      app.translator.trans('huseyinfiliz-diff.forum.differences.originalContent')
-                    : /* we're viewing differences between revision X and {new} */
-                      app.translator.trans('huseyinfiliz-diff.forum.differences.revisionWithNumber', {
-                        number: this.comparisonBetween.old.revision,
-                      }),
-              new:
-                this.comparisonBetween.new.revision == 0
-                  ? /* we're viewing differences between {old} and original content */
-                    app.translator.trans('huseyinfiliz-diff.forum.differences.originalContent')
-                  : this.comparisonBetween.new.revision == this.attrs.listState.post.revisionCount()
-                    ? /* we're viewing differences between {old} and current content */
-                      app.translator.trans('huseyinfiliz-diff.forum.differences.currentContent')
-                    : /* we're viewing differences between {old} and revision X */
-                      app.translator.trans('huseyinfiliz-diff.forum.differences.revisionWithNumber', {
-                        number: this.comparisonBetween.new.revision,
-                      }),
-            })
-          )
-        : extractText(
-            app.translator.trans('huseyinfiliz-diff.forum.previewMode.sentence', {
-              content:
-                this.comparisonBetween.new.revision == 0
-                  ? /* we're previewing original content */
-                    app.translator.trans('huseyinfiliz-diff.forum.previewMode.originalContent')
-                  : this.comparisonBetween.new.revision == this.attrs.listState.post.revisionCount()
-                    ? /* we're previewing current content */
-                      app.translator.trans('huseyinfiliz-diff.forum.previewMode.currentContent')
-                    : /* we're previewing revision X */
-                      app.translator.trans('huseyinfiliz-diff.forum.previewMode.revisionWithNumber', {
-                        number: this.comparisonBetween.new.revision,
-                      }),
-            })
-          );
-
-    return $infoContainer.html(infoContentHtml);
+    return !preview && this.attrs.listState.selectedItem.revision() != 0 && this.comparisonBetween.new.revision != this.comparisonBetween.old.revision
+      ? extractText(
+          app.translator.trans('huseyinfiliz-diff.forum.differences.sentence', {
+            old:
+              this.comparisonBetween.old.revision == -1
+                ? app.translator.trans('huseyinfiliz-diff.forum.differences.currentContent')
+                : this.comparisonBetween.old.revision == 0
+                  ? app.translator.trans('huseyinfiliz-diff.forum.differences.originalContent')
+                  : app.translator.trans('huseyinfiliz-diff.forum.differences.revisionWithNumber', {
+                      number: this.comparisonBetween.old.revision,
+                    }),
+            new:
+              this.comparisonBetween.new.revision == 0
+                ? app.translator.trans('huseyinfiliz-diff.forum.differences.originalContent')
+                : this.comparisonBetween.new.revision == this.attrs.listState.post.revisionCount()
+                  ? app.translator.trans('huseyinfiliz-diff.forum.differences.currentContent')
+                  : app.translator.trans('huseyinfiliz-diff.forum.differences.revisionWithNumber', {
+                      number: this.comparisonBetween.new.revision,
+                    }),
+          })
+        )
+      : extractText(
+          app.translator.trans('huseyinfiliz-diff.forum.previewMode.sentence', {
+            content:
+              this.comparisonBetween.new.revision == 0
+                ? app.translator.trans('huseyinfiliz-diff.forum.previewMode.originalContent')
+                : this.comparisonBetween.new.revision == this.attrs.listState.post.revisionCount()
+                  ? app.translator.trans('huseyinfiliz-diff.forum.previewMode.currentContent')
+                  : app.translator.trans('huseyinfiliz-diff.forum.previewMode.revisionWithNumber', {
+                      number: this.comparisonBetween.new.revision,
+                    }),
+          })
+        );
   }
 }

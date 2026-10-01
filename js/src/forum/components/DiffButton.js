@@ -64,7 +64,7 @@ export default class DiffButton extends Button {
 
     return [
       // we also should consider deleted users here
-      actor.username() ? <Avatar user={actor} /> : '',
+      actor && actor.username() ? <Avatar user={actor} /> : '',
       // does this button have an icon?
       revision.deletedAt() && this.attrs.subButton === false ? <Icon name="fas fa-caret-down" className="Button-caret" /> : '',
       // button label

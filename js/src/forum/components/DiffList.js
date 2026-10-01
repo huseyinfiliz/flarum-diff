@@ -72,13 +72,14 @@ export default class DiffList extends Component {
                             }
                           },
                           oncreate: (vnode) => {
-                            $(vnode.dom)
-                              // this is a workaround for adding custom
-                              // classes into bootstrap tooltips
-                              // https://stackoverflow.com/a/29879041/12866913
-                              .data('bs.tooltip')
-                              .tip()
-                              .addClass(item.deletedAt() ? tooltipClass + ' deletedDiffTooltip' : tooltipClass);
+                            try {
+                              const bsTooltip = $(vnode.dom).data('bs.tooltip');
+                              if (bsTooltip && typeof bsTooltip.tip === 'function') {
+                                bsTooltip.tip().addClass(item.deletedAt() ? tooltipClass + ' deletedDiffTooltip' : tooltipClass);
+                              }
+                            } catch (e) {
+                              // Ignore tooltip customization errors
+                            }
                           },
                         })}
                       </Tooltip>
@@ -86,11 +87,15 @@ export default class DiffList extends Component {
 
                     // returns the template for revision list items
                     return [
-                      <li className={'Diff ParentDiff' + (item.deletedAt() ? ' DeletedDiff' : '')} id={'parentDiff' + item.id()}>
+                      <li
+                        className={'Diff ParentDiff' + (item.deletedAt() ? ' DeletedDiff' : '')}
+                        id={'parentDiff' + item.id()}
+                        onclick={item.deletedAt() ? (e) => e.stopPropagation() : undefined}
+                      >
                         {diffButton}
                       </li>,
                       item.deletedAt() ? (
-                        <li className="Diff SubDiff" id={'subDiff' + item.id()}>
+                        <li className="Diff SubDiff" id={'subDiff' + item.id()} onclick={(e) => e.stopPropagation()}>
                           <DiffButton postDate={state.post.createdAt()} subButton item={item} />
                         </li>
                       ) : (
