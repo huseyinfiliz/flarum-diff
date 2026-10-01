@@ -1,5 +1,3 @@
-import redrawPost from '../utils/redrawPost';
-
 export default class DiffListState {
   constructor(post, forModal, moreResults, selectedItem) {
     this.post = post;
@@ -9,7 +7,7 @@ export default class DiffListState {
     this.loading = false;
 
     if (!app.cache.diffs) {
-      app.cache.diffs = [];
+      app.cache.diffs = {};
     }
   }
 
@@ -19,7 +17,7 @@ export default class DiffListState {
    * @public
    */
   load() {
-    // don't do anthing if we already cached revisions for the post.
+    // don't do anything if we already cached revisions for the post.
     // lazy-loading will perform loadMore() if there are moreResults
     if (app.cache.diffs[this.post.id()]) return this.redrawList();
 
@@ -32,25 +30,27 @@ export default class DiffListState {
    * @public
    */
   loadMore() {
-    this.loading = true;
-    this.redrawList();
+    const cachedPages = app.cache.diffs[this.post.id()] || [];
+    const totalLoaded = cachedPages.reduce((acc, p) => acc + p.length, 0);
 
-    // don't do anthing if we already cached ALL revisions for the post.
-    if (app.cache.diffs[this.post.id()] && app.cache.diffs[this.post.id()].length == this.post.revisionCount()) {
+    // don't do anything if we already cached ALL revisions for the post.
+    if (totalLoaded > 0 && totalLoaded >= this.post.revisionCount() + 1) {
       return;
     }
 
+    this.loading = true;
+    this.redrawList();
+
     // set URL parameters
-    const params = app.cache.diffs[this.post.id()]
-      ? {
-          filter: { post_id: this.post.id() },
-          page: {
-            offset: app.cache.diffs[this.post.id()].length * 10,
-          },
-        }
-      : {
-          filter: { post_id: this.post.id() },
-        };
+    const params = {
+      filter: { post_id: this.post.id() },
+    };
+
+    if (totalLoaded > 0) {
+      params.page = {
+        offset: totalLoaded,
+      };
+    }
 
     return app.store
       .find('diff', params)
@@ -73,7 +73,7 @@ export default class DiffListState {
 
     if (results.length) app.cache.diffs[this.post.id()].push(results);
 
-    this.moreResults = !!results.payload.links.next;
+    this.moreResults = !!(results.payload?.links?.next);
 
     return results;
   }
@@ -83,12 +83,5 @@ export default class DiffListState {
    */
   redrawList() {
     m.redraw();
-
-    // because we don't need to redraw the post
-    // to update DiffList in DiffModal.
-    // We just need it for updating DiffDropdown.
-    if (this.forModal) return;
-
-    return redrawPost(this.post);
   }
 }

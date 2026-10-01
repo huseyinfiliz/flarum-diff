@@ -5,7 +5,6 @@ namespace HuseyinFiliz\Diff\Listeners;
 use Carbon\Carbon;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Post\Event\Revised as PostRevised;
-use Flarum\Post\Event\Saving as PostSaving;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use HuseyinFiliz\Diff\Jobs\ArchiveDiffs;
@@ -13,11 +12,6 @@ use HuseyinFiliz\Diff\Models\Diff;
 
 class PostActions
 {
-    /**
-     * @var string
-     */
-    private static $oldContent = '';
-
     public function __construct(protected SettingsRepositoryInterface $settings, private ExtensionManager $extensions, protected ArchiveDiffs $job)
     {
     }
@@ -29,7 +23,6 @@ class PostActions
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(PostSaving::class, [$this, 'whenSavingPost']);
         $events->listen(
             // support for my 'the-turk/flarum-quiet-edits' extension
             ($this->extensions->isEnabled('the-turk-quiet-edits')
@@ -37,24 +30,6 @@ class PostActions
             : PostRevised::class),
             [$this, 'whenRevisedPost']
         );
-    }
-
-    /**
-     * Catch the content of the old post
-     * just before saving the new one.
-     *
-     * @param PostSaving $event
-     */
-    public function whenSavingPost(PostSaving $event)
-    {
-        $post = $event->post;
-        // if the post already exists,
-        // this means we're trying to edit.
-        if ($post->exists) {
-            self::$oldContent = $post->getContentAttribute(
-                $post->getOriginal('content')
-            );
-        }
     }
 
     /**
@@ -92,13 +67,9 @@ class PostActions
         // Prefer $event->oldContent from Revised event (Flarum 2.x)
         // This is more reliable as it comes directly from the event dispatcher
         // Fall back to self::$oldContent for compatibility with normal edits
-        $oldContent = property_exists($event, 'oldContent') && !empty($event->oldContent)
-            ? $event->oldContent
-            : self::$oldContent;
+        $oldContent = $event->oldContent ?? '';
 
-        $diffSubject = Diff::where('post_id', $event->post->id);
-        $maxRevisionCount = $diffSubject->exists() ?
-            $diffSubject->max('revision') : 0;
+        $maxRevisionCount = Diff::where('post_id', $event->post->id)->max('revision') ?? 0;
 
         // if this is a first edit
         if ($maxRevisionCount == 0) {
@@ -116,9 +87,9 @@ class PostActions
             // because we set it to null before
             // (we were getting its contents from posts table
             // because latest revision is equal to latest post content)
-            $latestDiff = $diffSubject
-              ->where('revision', $maxRevisionCount)
-              ->firstOrFail();
+            $latestDiff = Diff::where('post_id', $event->post->id)
+                ->where('revision', $maxRevisionCount)
+                ->firstOrFail();
             $latestDiff->content = $oldContent;
             $latestDiff->save();
         }
