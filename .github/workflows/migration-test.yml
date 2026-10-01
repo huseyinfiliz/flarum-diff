@@ -38,6 +38,8 @@ jobs:
       # ============================================
       - name: Create Flarum 1.8 project
         run: |
+          composer config --global audit.abandoned ignore || true
+          composer config --global policy.advisories.block false || true
           composer create-project flarum/flarum:^1.8 flarum-test --stability=stable --no-interaction
 
       - name: Create installation config file
@@ -225,6 +227,14 @@ jobs:
           echo file_get_contents('composer.json');
           EOPHP
 
+      - name: Switch to PHP 8.3 for Flarum 2.x upgrade
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip, iconv
+          tools: composer:v2
+          coverage: none
+
       - name: Upgrade to Flarum 2.x
         working-directory: flarum-test
         run: |
@@ -339,7 +349,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.3'
           extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip, iconv
           tools: composer:v2
           coverage: none
