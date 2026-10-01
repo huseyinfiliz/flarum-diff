@@ -71,7 +71,10 @@ jobs:
       - name: Install the-turk/flarum-diff 1.x
         working-directory: flarum-test
         run: |
-          composer require the-turk/flarum-diff:"^1.0" --no-interaction
+          git clone --depth 1 --branch 1.x https://github.com/huseyinfiliz/flarum-diff.git /tmp/flarum-diff-1x
+          sed -i 's/"huseyinfiliz\/flarum-diff"/"the-turk\/flarum-diff"/' /tmp/flarum-diff-1x/composer.json
+          composer config repositories.legacy path /tmp/flarum-diff-1x
+          composer require the-turk/flarum-diff:"*@dev" --no-interaction
           
           # Enable the extension in settings
           mysql -uroot -proot flarum_test -e "UPDATE settings SET value = JSON_ARRAY_APPEND(COALESCE(value, '[]'), '\$', 'the-turk-diff') WHERE \`key\` = 'extensions_enabled';"
@@ -199,6 +202,7 @@ jobs:
           
           # Remove the package
           composer remove the-turk/flarum-diff --no-interaction
+          composer config --unset repositories.legacy
 
       - name: Prepare composer.json for Flarum 2.x upgrade
         working-directory: flarum-test

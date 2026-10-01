@@ -42,13 +42,16 @@ return [
             $schema->dropIfExists('post_edit_histories');
         }
 
-        $schema->create('post_edit_histories', function (Blueprint $table) {
+        $schema->create('post_edit_histories', function (Blueprint $table) use ($schema) {
             $table->increments('id');
             $table->unsignedInteger('post_id');
             $table->unsignedInteger('actor_id')->nullable();
             $table->unsignedSmallInteger('revision');
             $table->dateTime('created_at');
-            $table->mediumText('content')->collation('utf8mb4_unicode_ci')->nullable();
+            $contentCol = $table->mediumText('content')->nullable();
+            if (in_array($schema->getConnection()->getDriverName(), ['mysql', 'mariadb'])) {
+                $contentCol->collation('utf8mb4_unicode_ci');
+            }
             $table->unsignedInteger('deleted_user_id')->nullable();
             $table->dateTime('deleted_at')->nullable();
             $table->unsignedInteger('rollbacked_user_id')->nullable();

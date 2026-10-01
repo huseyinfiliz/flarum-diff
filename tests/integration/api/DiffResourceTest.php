@@ -41,11 +41,11 @@ class DiffResourceTest extends TestCase
                 ['group_id' => 4, 'permission' => 'rollbackEditHistory'],
                 ['group_id' => 4, 'permission' => 'discussion.hidePosts'],
             ],
-            Discussion::class => [
-                ['id' => 1, 'title' => 'Public Discussion', 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 2],
-                ['id' => 2, 'title' => 'Hidden Discussion', 'user_id' => 1, 'first_post_id' => 3, 'comment_count' => 1, 'hidden_at' => Carbon::now()],
+            'discussions' => [
+                ['id' => 1, 'title' => 'Public Discussion', 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 2, 'created_at' => Carbon::now()],
+                ['id' => 2, 'title' => 'Hidden Discussion', 'user_id' => 1, 'first_post_id' => 3, 'comment_count' => 1, 'hidden_at' => Carbon::now(), 'created_at' => Carbon::now()],
             ],
-            CommentPost::class => [
+            'posts' => [
                 // Post 1: Public post with revisions
                 [
                     'id' => 1,
