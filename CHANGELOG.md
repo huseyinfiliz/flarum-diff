@@ -12,6 +12,7 @@
 
 ### Fixed
 - Use a boolean visibility check for revision deletion so authorized members and moderators can delete revisions without requiring history viewing permission.
+- Bind compressed archive contents as binary data on PostgreSQL and support repeated reads of bytea streams.
 
 ### Performance
 - Cache decoded archive contents within each repository instance and invalidate cached entries after archive writes and deletions.
