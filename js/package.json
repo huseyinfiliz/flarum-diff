@@ -1,6 +1,7 @@
 {
   "name": "@huseyinfiliz/flarum-diff",
   "private": true,
+  "packageManager": "yarn@1.22.22",
   "version": "0.0.0",
   "prettier": "@flarum/prettier-config",
   "devDependencies": {

@@ -12,8 +12,8 @@ jobs:
 
       frontend_directory: ./js
       backend_directory: .
-      js_package_manager: npm
-      cache_dependency_path: ./js/package-lock.json
+      js_package_manager: yarn
+      cache_dependency_path: ./js/yarn.lock
 
-      node_version: 20
+      node_version: 22
       main_git_branch: 2.x

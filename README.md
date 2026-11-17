@@ -104,6 +104,12 @@ If **x ≥ A** (where the **x** is post's revision count), first **y=mx+b** revi
 
 If you want to archive old revisions, please consider enabling _cron job option_ from the settings modal. I set a weekly cron job which is working on sundays at 02:00 AM (nothing special) using `diff:archive` command. Otherwise, it'll try to find & archive old revisions for the post as soon as `Post\Revised` event fires or wait for your `php flarum diff:archive` command. See [this discussion](https://discuss.flarum.org/d/24118-setup-the-flarum-scheduler-using-cron) for setting up the scheduler.
 
+## Development and Dependency Updates
+
+Use Yarn in the `js` directory: `yarn install --frozen-lockfile`, `yarn format-check`, and `yarn build`. Commit the updated production bundles alongside frontend changes. The frontend workflow uses the same package manager and lockfile.
+
+Dependabot checks Composer dependencies, JavaScript dependencies, and GitHub Actions weekly. Minor and patch updates are grouped by ecosystem; major Flarum core/testing upgrades are handled manually to preserve the supported Flarum generation. Review update pull requests after the existing backend and frontend checks pass. Version-update checks start when `.github/dependabot.yml` reaches the default branch; security alerts and security-update pull requests are configured separately in the repository's GitHub settings.
+
 ## Links
 
 - [Flarum Discuss post](https://discuss.flarum.org/d/22779-diff-for-flarum)
