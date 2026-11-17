@@ -5,6 +5,7 @@
 ### Added
 - Add optional, validated edit reasons to the post editor and revision history, protected by the existing history viewing permission (Fixes #1).
 - Add a nullable `edit_reason` column to revision history; run migrations when updating.
+- Add an administrator setting to show or hide the compact, placeholder-only edit reason field in the post editor.
 
 ### Security
 - Require the `viewEditHistory` permission when including revisions through post relationships, including nested and preloaded relationships.

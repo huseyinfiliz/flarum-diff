@@ -96,6 +96,8 @@ When editing a post, authors and moderators can optionally enter a plain-text re
 
 Editing only the reason does not create a revision or rewrite an existing reason. Rollbacks create a new revision without copying the restored revision's reason. If only first-post revisions are enabled, the reason field is shown only when editing the first post.
 
+The compact reason field uses an optional placeholder instead of a separate heading. Administrators can hide it using **Show the edit reason field in the post editor**, which is enabled by default. This display setting does not remove existing reasons or disable API integrations; stored reasons remain subject to the history viewing permission.
+
 ### Archive Old Revisions
 
 If **x ≥ A** (where the **x** is post's revision count), first **y=mx+b** revisions for the post can be stored as merged & compressed `BLOB` in a new table (which is called `post_edit_histories_archive`). Specify the **A**, **m** and **b** from the settings modal. Float values of **y** will be rounded to the next lowest integer value. It's recommended to archive old revisions if you want to save storage volume but **_not recommended if you don't want to_**.

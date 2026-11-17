@@ -3,8 +3,8 @@ import app from 'flarum/forum/app';
 import Stream from 'flarum/common/utils/Stream';
 import extractText from 'flarum/common/utils/extractText';
 
-function recordsHistory(composer) {
-  return !app.forum.attribute('diffMainPostOnly') || composer.attrs.post.number() === 1;
+function showsEditReason(composer) {
+  return app.forum.attribute('showDiffEditReason') !== false && (!app.forum.attribute('diffMainPostOnly') || composer.attrs.post.number() === 1);
 }
 
 export default function addEditReason() {
@@ -13,20 +13,20 @@ export default function addEditReason() {
   });
 
   extend('flarum/forum/components/EditPostComposer', 'headerItems', function (items) {
-    if (!recordsHistory(this)) return;
+    if (!showsEditReason(this)) return;
 
     const id = `diff-edit-reason-${this.attrs.post.id()}`;
 
     items.add(
       'editReason',
       <div className="DiffEditReason-form">
-        <label for={id}>{app.translator.trans('huseyinfiliz-diff.forum.composer.editReasonLabel')}</label>
         <input
           id={id}
           className="FormControl"
           type="text"
           maxlength={500}
           autocomplete="off"
+          aria-label={extractText(app.translator.trans('huseyinfiliz-diff.forum.composer.editReasonLabel'))}
           placeholder={extractText(app.translator.trans('huseyinfiliz-diff.forum.composer.editReasonPlaceholder'))}
           disabled={this.loading || this.attrs.disabled}
           value={this.composer.fields.editReason()}
@@ -38,7 +38,7 @@ export default function addEditReason() {
   });
 
   extend('flarum/forum/components/EditPostComposer', 'data', function (data) {
-    if (recordsHistory(this)) {
+    if (showsEditReason(this)) {
       const reason = this.composer.fields.editReason().trim();
 
       if (reason) data.editReason = reason;

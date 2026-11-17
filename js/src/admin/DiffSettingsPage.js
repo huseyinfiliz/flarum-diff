@@ -21,6 +21,20 @@ export default class DiffSettingsPage extends ExtensionPage {
               'label',
               Switch.component(
                 {
+                  state: this.setting(settingsPrefix + 'showEditReason', '1')() === '1',
+                  onchange: (value) => {
+                    this.setting(settingsPrefix + 'showEditReason')(value ? '1' : '0');
+                  },
+                },
+                app.translator.trans(localePrefix + 'showEditReason')
+              )
+            ),
+          ]),
+          m('.Form-group', [
+            m(
+              'label',
+              Switch.component(
+                {
                   state: this.setting(settingsPrefix + 'mainPostOnly', '0')() === '1',
                   onchange: (value) => {
                     this.setting(settingsPrefix + 'mainPostOnly')(value ? '1' : '0');

@@ -241,6 +241,29 @@ class EditReasonTest extends TestCase
         $this->assertEquals(2, $this->database()->table('post_edit_histories')->count());
     }
 
+    public function test_reason_field_is_shown_by_default_in_forum_configuration()
+    {
+        $response = $this->send($this->request('GET', '/api'));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertTrue($body['data']['attributes']['showDiffEditReason']);
+    }
+
+    public function test_hidden_reason_field_preserves_history_and_api_integrations()
+    {
+        $this->setting('huseyinfiliz-diff.showEditReason', '0');
+        $response = $this->send($this->request('GET', '/api'));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertFalse($body['data']['attributes']['showDiffEditReason']);
+
+        $this->edit(['content' => 'Edited by an API integration', 'editReason' => 'Integration reason']);
+        $this->assertSame('Integration reason', $this->latestRevision()->edit_reason);
+        $this->assertSame('Earlier reason', $this->database()->table('post_edit_histories')->where('id', 2)->value('edit_reason'));
+    }
+
     protected function edit(array $attributes, int $actor = 2, int $status = 200): void
     {
         $response = $this->send($this->request('PATCH', '/api/posts/1', [

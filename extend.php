@@ -51,6 +51,8 @@ return [
         }),
 
     (new Extend\Settings())
+        ->default('huseyinfiliz-diff.showEditReason', '1')
+        ->serializeToForum('showDiffEditReason', 'huseyinfiliz-diff.showEditReason', 'boolVal')
         ->serializeToForum('diffMainPostOnly', 'huseyinfiliz-diff.mainPostOnly', 'boolVal', false)
         ->serializeToForum('textFormattingForDiffPreviews', 'huseyinfiliz-diff.textFormatting', 'boolVal', true),
 
