@@ -44,6 +44,7 @@ class DeleteDiffHandler
             $diff->content = null;
         }
         $diff->deleted_user_id = $actor->id;
+        $diff->edit_reason = null;
         $diff->deleted_at = Carbon::now();
         $diff->save();
     }

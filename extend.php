@@ -15,6 +15,7 @@ use Flarum\Api\Resource\PostResource;
 use Flarum\Api\Schema;
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
+use Flarum\Post\CommentPost;
 use Flarum\Post\Post;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use HuseyinFiliz\Diff\Console\ArchiveCommand;
@@ -50,6 +51,7 @@ return [
         }),
 
     (new Extend\Settings())
+        ->serializeToForum('diffMainPostOnly', 'huseyinfiliz-diff.mainPostOnly', 'boolVal', false)
         ->serializeToForum('textFormattingForDiffPreviews', 'huseyinfiliz-diff.textFormatting', 'boolVal', true),
 
     (new Extend\User())
@@ -66,6 +68,15 @@ return [
     // Extend Post resource with diff-related attributes and relationships
     (new Extend\ApiResource(PostResource::class))
         ->fields(fn () => [
+            Schema\Str::make('editReason')
+                ->nullable()
+                ->maxLength(500)
+                ->visible(false)
+                ->writable(fn (Post $post, Context $context) => $context->updating()
+                    && $post instanceof CommentPost
+                    && $context->getActor()->can('edit', $post))
+                // The Saving listener associates this request-only value with the new revision.
+                ->set(fn () => null),
             Schema\Boolean::make('canViewEditHistory')
                 ->get(function ($post, $context) {
                     return $context->getActor()->can('viewEditHistory');

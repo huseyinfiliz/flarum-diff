@@ -9,6 +9,7 @@ use Flarum\User\User;
  * @property int               $id
  * @property int               $revision
  * @property string            $content
+ * @property string|null       $edit_reason
  * @property int               $post_id
  * @property \Flarum\Post\Post $post
  * @property int|null          $rollbacked_to

@@ -4,6 +4,11 @@ huseyinfiliz-diff:
         emptyText:                    No Revisions
         editedText:                   => core.forum.post.edited_text
         deletedText:                  (deleted)
+        editReason:                   Edit reason
+
+        composer:
+          editReasonLabel:            Edit reason (optional)
+          editReasonPlaceholder:      Briefly explain what changed (up to 500 characters)
         
         tooltips:
           # Revision List Tooltips

@@ -128,6 +128,10 @@ class DiffResource extends AbstractDatabaseResource
     {
         return [
             Schema\Integer::make('revision'),
+            Schema\Str::make('editReason')
+                ->nullable()
+                ->visible(fn (Diff $diff, Context $context) => $context->getActor()->can('viewEditHistory'))
+                ->get(fn (Diff $diff) => $diff->deleted_at === null ? $diff->edit_reason : null),
             Schema\DateTime::make('createdAt')
                 ->property('created_at'),
             Schema\DateTime::make('deletedAt')

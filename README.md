@@ -20,6 +20,7 @@ Screenshots:
 - Three render modes including "Inline", "Side By Side" & "Combined".
 - Archive old revisions using cron jobs or manually.
 - Delete revisions or rollback to certain revision.
+- Add an optional edit reason when editing a post, visible to readers with edit history access.
 - Supports all browsers which are supporting [css-grid](https://caniuse.com/#feat=css-grid).
 
 Also, it won't load (and cache) anything until you click the "Edited" button so no need to worry about loading times.
@@ -88,6 +89,12 @@ To upgrade from the original extension:
 ## Usage
 
 Enable the extension and set the permissions. You're ready to go!
+
+### Edit Reasons
+
+When editing a post, authors and moderators can optionally enter a plain-text reason of up to 500 characters. The reason belongs to the new revision and is shown in the revision list and history modal. It uses the existing edit history viewing permission and is permanently removed when that revision is deleted. Older revisions remain compatible and display no reason unless one was recorded.
+
+Editing only the reason does not create a revision or rewrite an existing reason. Rollbacks create a new revision without copying the restored revision's reason. If only first-post revisions are enabled, the reason field is shown only when editing the first post.
 
 ### Archive Old Revisions
 

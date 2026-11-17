@@ -3,16 +3,24 @@
 namespace HuseyinFiliz\Diff\Listeners;
 
 use Carbon\Carbon;
+use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Revised as PostRevised;
+use Flarum\Post\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
 use HuseyinFiliz\Diff\Jobs\ArchiveDiffs;
 use HuseyinFiliz\Diff\Models\Diff;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
+use WeakMap;
 
 class PostActions
 {
+    /** @var WeakMap<CommentPost, array{actorId: int, reason: ?string}> */
+    protected WeakMap $editReasons;
+
     public function __construct(protected SettingsRepositoryInterface $settings, protected ArchiveDiffs $job)
     {
+        $this->editReasons = new WeakMap();
     }
 
     /**
@@ -22,10 +30,29 @@ class PostActions
      */
     public function subscribe(Dispatcher $events)
     {
+        $events->listen(Saving::class, [$this, 'whenSavingPost']);
         $events->listen(
             PostRevised::class,
             [$this, 'whenRevisedPost']
         );
+    }
+
+    public function whenSavingPost(Saving $event): void
+    {
+        unset($this->editReasons[$event->post]);
+
+        if (! ($event->post instanceof CommentPost) || ! $event->post->exists || ! $event->post->isDirty('content')) {
+            return;
+        }
+
+        $reason = Arr::get($event->data, 'attributes.editReason');
+
+        if (is_string($reason) && mb_strlen($reason) <= 500) {
+            $this->editReasons[$event->post] = [
+                'actorId' => $event->actor->id,
+                'reason' => trim($reason) === '' ? null : trim($reason),
+            ];
+        }
     }
 
     /**
@@ -38,6 +65,12 @@ class PostActions
      */
     public function whenRevisedPost($event)
     {
+        $pendingReason = $this->editReasons[$event->post] ?? null;
+        unset($this->editReasons[$event->post]);
+        $editReason = $pendingReason && $pendingReason['actorId'] === $event->actor->id
+            ? $pendingReason['reason']
+            : null;
+
         $mainPostOnly = (bool) $this->settings->get(
             'huseyinfiliz-diff.mainPostOnly',
             false
@@ -60,9 +93,7 @@ class PostActions
             false
         );
 
-        // Prefer $event->oldContent from Revised event (Flarum 2.x)
-        // This is more reliable as it comes directly from the event dispatcher
-        // Fall back to self::$oldContent for compatibility with normal edits
+        // The event retains the previous text, including edits performed by rollback.
         $oldContent = $event->oldContent ?? '';
 
         $maxRevisionCount = Diff::where('post_id', $event->post->id)->max('revision') ?? 0;
@@ -100,6 +131,7 @@ class PostActions
         );
 
         $diff->created_at = Carbon::now();
+        $diff->edit_reason = $editReason;
         $diff->save();
 
         // if they want to archive old revisions

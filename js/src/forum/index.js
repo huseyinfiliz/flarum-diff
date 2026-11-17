@@ -7,8 +7,11 @@ import Model from 'flarum/common/Model';
 
 import Diff from './models/Diff';
 import DiffDropdown from './components/DiffDropdown';
+import addEditReason from './addEditReason';
 
 app.initializers.add('huseyinfiliz-diff', () => {
+  addEditReason();
+
   app.store.models.diff = Diff;
 
   Post.prototype.revisionCount = Model.attribute('revisionCount');

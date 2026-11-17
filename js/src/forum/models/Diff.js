@@ -3,6 +3,7 @@ import mixin from 'flarum/common/utils/mixin';
 
 export default class Diff extends mixin(Model, {
   revision: Model.attribute('revision'),
+  editReason: Model.attribute('editReason'),
   createdAt: Model.attribute('createdAt', Model.transformDate),
   deletedAt: Model.attribute('deletedAt', Model.transformDate),
   rollbackedAt: Model.attribute('rollbackedAt', Model.transformDate),

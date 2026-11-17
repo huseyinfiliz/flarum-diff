@@ -83,6 +83,7 @@ class DiffResourceTest extends TestCase
                     'revision' => 0,
                     'actor_id' => 1,
                     'content' => 'Public post original content',
+                    'edit_reason' => 'HISTORICAL_REASON_MARKER',
                     'created_at' => Carbon::now()->subHours(2),
                 ],
                 [
@@ -355,6 +356,7 @@ class DiffResourceTest extends TestCase
         $body = json_decode($json, true);
         $this->assertStringNotContainsString('Public post original content', $json);
         $this->assertStringNotContainsString('Secret original content', $json);
+        $this->assertStringNotContainsString('HISTORICAL_REASON_MARKER', $json);
 
         $resources = isset($body['data']['type']) ? [$body['data']] : $body['data'];
         $resources = array_merge($resources, $body['included'] ?? []);

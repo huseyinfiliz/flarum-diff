@@ -73,7 +73,14 @@ export default class DiffButton extends Button {
           /* emphasize deleted revision's information */
           <em>{buttonText}</em>
         ) : (
-          buttonText
+          <span>
+            {buttonText}
+            {revision.editReason() && !revision.deletedAt() ? (
+              <span className="DiffButton-reason" title={revision.editReason()}>
+                {revision.editReason()}
+              </span>
+            ) : null}
+          </span>
         )}
       </span>,
     ];

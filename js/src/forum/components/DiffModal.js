@@ -314,6 +314,12 @@ export default class DiffModal extends Modal {
           <div className="revisionInfo">
             <h4>{app.translator.trans('huseyinfiliz-diff.forum.revisions', { revisionCount })}</h4>
             <p className="diffInfoContainer">{this.getInfoContent(this.contentType === 'preview')}</p>
+            {this.attrs.listState.selectedItem.editReason() && !this.attrs.listState.selectedItem.deletedAt() ? (
+              <p className="DiffModal-editReason">
+                <strong>{app.translator.trans('huseyinfiliz-diff.forum.editReason')}: </strong>
+                {this.attrs.listState.selectedItem.editReason()}
+              </p>
+            ) : null}
           </div>
         </div>
 
