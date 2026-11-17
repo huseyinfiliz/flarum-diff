@@ -8,11 +8,12 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use HuseyinFiliz\Diff\Models\Diff;
-use HuseyinFiliz\Diff\Models\DiffArchive;
+use HuseyinFiliz\Diff\Tests\integration\CreatesArchiveFixtures;
 
 class EditReasonTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+    use CreatesArchiveFixtures;
 
     protected function setUp(): void
     {
@@ -199,15 +200,7 @@ class EditReasonTest extends TestCase
 
     public function test_archiving_content_preserves_the_revision_reason()
     {
-        $this->prepareDatabase([
-            DiffArchive::class => [[
-                'id' => 1,
-                'post_id' => 1,
-                'archive_no' => 1,
-                'revision_count' => 1,
-                'contents' => gzcompress(json_encode([2 => 'Archived revision content'])),
-            ]],
-        ]);
+        $this->createArchiveFixture([2 => 'Archived revision content']);
         $this->database()->table('post_edit_histories')->where('id', 2)->update(['archive_id' => 1]);
 
         $response = $this->send($this->request('GET', '/api/diff/2', ['authenticatedAs' => 2]));
@@ -221,7 +214,7 @@ class EditReasonTest extends TestCase
     {
         $this->database()->table('post_edit_histories')->where('id', 2)->update(['content' => 'Intermediate content']);
         $this->database()->table('post_edit_histories')->insert([
-            'id' => 3, 'post_id' => 1, 'actor_id' => 2, 'revision' => 2, 'content' => null, 'created_at' => Carbon::now()->subMinutes(30),
+            'post_id' => 1, 'actor_id' => 2, 'revision' => 2, 'content' => null, 'created_at' => Carbon::now()->subMinutes(30),
         ]);
 
         $response = $this->send($this->request('POST', '/api/diff/2', ['authenticatedAs' => 1]));
