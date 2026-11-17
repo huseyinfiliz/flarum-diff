@@ -24,7 +24,7 @@ Ekran görüntüleri:
 
 ## Gereksinimler
 
-![php](https://img.shields.io/badge/php-%E2%89%A58.2-blue?style=flat-square) ![ext-iconv](https://img.shields.io/badge/ext-iconv-brightgreen?style=flat-square)
+![php](https://img.shields.io/badge/php-%E2%89%A58.3-blue?style=flat-square) ![ext-iconv](https://img.shields.io/badge/ext-iconv-brightgreen?style=flat-square)
 
 php sürümünüzü `php -v` komutunu çalıştırarak ve `iconv` paketinin yüklü olup olmadığını `php --ri iconv` komutunu çalıştırarak (`iconv support => enabled` çıktısını görmelisiniz) öğrenebilirsiniz.
 
@@ -37,7 +37,7 @@ composer require huseyinfiliz/flarum-diff:"*"
 ## Güncelleme
 
 ```bash
-composer update huseyinfiliz/flarum-diff
+composer update huseyinfiliz/flarum-diff --with-dependencies
 php flarum migrate
 php flarum cache:clear
 ```

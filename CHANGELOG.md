@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.1.1
+
+### Maintenance
+- Update `jfcherng/php-diff` to `^7.0.1`, `webpack-cli` to `^7.3.1`, and Prettier to `^3.10.1`.
+- Apply Prettier 3 formatting to the revision list and history modal.
+- Align the declared PHP minimum with PHP 8.3, already required by supported Flarum 2 releases and php-diff 7.
+
+### Updating
+
+Allow Composer to update php-diff and its related dependencies:
+
+```bash
+composer update huseyinfiliz/flarum-diff --with-dependencies
+php flarum migrate
+php flarum cache:clear
+```
+
 ## 2.1.0
 
 ### Added
