@@ -85,7 +85,8 @@ class DiffResource extends AbstractDatabaseResource
                 }),
 
             Endpoint\Delete::make()
-                ->can(function (Diff $diff, Context $context) {
+                ->authenticated()
+                ->visible(function (Diff $diff, Context $context) {
                     $actor = $context->getActor();
                     $post = $this->posts->findOrFail($diff->post_id, $actor);
                     $isSelf = $actor->id === $post->user_id;

@@ -10,6 +10,7 @@
 
 namespace HuseyinFiliz\Diff;
 
+use Flarum\Api\Context;
 use Flarum\Api\Resource\PostResource;
 use Flarum\Api\Schema;
 use Flarum\Extend;
@@ -104,6 +105,7 @@ return [
                 }),
             Schema\Relationship\ToMany::make('diff')
                 ->type('diff')
+                ->visible(fn (Post $post, Context $context) => $context->getActor()->can('viewEditHistory'))
                 ->includable(),
         ]),
 ];
