@@ -3,7 +3,6 @@
 namespace HuseyinFiliz\Diff\Listeners;
 
 use Carbon\Carbon;
-use Flarum\Extension\ExtensionManager;
 use Flarum\Post\Event\Revised as PostRevised;
 use Flarum\Settings\SettingsRepositoryInterface;
 use HuseyinFiliz\Diff\Jobs\ArchiveDiffs;
@@ -12,7 +11,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class PostActions
 {
-    public function __construct(protected SettingsRepositoryInterface $settings, private ExtensionManager $extensions, protected ArchiveDiffs $job)
+    public function __construct(protected SettingsRepositoryInterface $settings, protected ArchiveDiffs $job)
     {
     }
 
@@ -24,10 +23,7 @@ class PostActions
     public function subscribe(Dispatcher $events)
     {
         $events->listen(
-            // support for my 'the-turk/flarum-quiet-edits' extension
-            $this->extensions->isEnabled('the-turk-quiet-edits')
-            ? \TheTurk\QuietEdits\Events\PostWasRevisedLoudly::class
-            : PostRevised::class,
+            PostRevised::class,
             [$this, 'whenRevisedPost']
         );
     }

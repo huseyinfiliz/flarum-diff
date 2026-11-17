@@ -8,6 +8,9 @@
 ### Fixed
 - Use a boolean visibility check for revision deletion so authorized members and moderators can delete revisions without requiring history viewing permission.
 
+### Removed
+- Remove the unavailable Quiet Edits package recommendation and legacy integration, which has no supported Flarum 2.x release (Fixes #2).
+
 ## 2.0.0
 
 This release brings full compatibility with Flarum 2.x and marks the first stable release of `huseyinfiliz/flarum-diff`.

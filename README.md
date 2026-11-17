@@ -20,7 +20,6 @@ Screenshots:
 - Three render modes including "Inline", "Side By Side" & "Combined".
 - Archive old revisions using cron jobs or manually.
 - Delete revisions or rollback to certain revision.
-- Supports `the-turk/flarum-quiet-edits`.
 - Supports all browsers which are supporting [css-grid](https://caniuse.com/#feat=css-grid).
 
 Also, it won't load (and cache) anything until you click the "Edited" button so no need to worry about loading times.

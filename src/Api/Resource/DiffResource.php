@@ -7,7 +7,6 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
-use Flarum\Extension\ExtensionManager;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
@@ -32,7 +31,6 @@ class DiffResource extends AbstractDatabaseResource
     public function __construct(
         protected SettingsRepositoryInterface $settings,
         protected CommentPost $commentPost,
-        protected ExtensionManager $extensions,
         protected TranslatorInterface $translator,
         protected DiffArchiveRepository $diffArchive,
         protected Dispatcher $bus,
@@ -337,20 +335,13 @@ class DiffResource extends AbstractDatabaseResource
         $oldRevision = $this->getOldRevisionContent($diff, $compareWith);
 
         if (! isset($this->differCache[$diff->id])) {
-            $ignoreCase = $ignoreWhiteSpace = false;
-
-            if ($this->extensions->isEnabled('the-turk-quiet-edits')) {
-                $ignoreCase = $this->settings->get('the-turk-quiet-edits.ignoreCase', true);
-                $ignoreWhiteSpace = $this->settings->get('the-turk-quiet-edits.ignoreWhitespace', true);
-            }
-
             $this->differCache[$diff->id] = new Differ(
                 explode("\n", $oldRevision),
                 explode("\n", $currentRevision),
                 [
                     'context' => (int) $this->settings->get('huseyinfiliz-diff.neighborLines', 2),
-                    'ignoreCase' => $ignoreCase,
-                    'ignoreWhitespace' => $ignoreWhiteSpace,
+                    'ignoreCase' => false,
+                    'ignoreWhitespace' => false,
                 ]
             );
         }

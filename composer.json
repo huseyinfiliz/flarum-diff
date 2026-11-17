@@ -47,9 +47,6 @@
         "jfcherng/php-diff": "^6.11.6",
         "ext-json": "*"
     },
-    "suggest": {
-        "the-turk/flarum-quiet-edits": "Recommended if you want to save storage volume"
-    },
     "autoload": {
         "psr-4": {
             "HuseyinFiliz\\Diff\\": "src/"

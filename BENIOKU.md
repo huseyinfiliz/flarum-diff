@@ -20,7 +20,6 @@ Ekran görüntüleri:
 - "Aynı hizada", "Yan yana" ve "Kombine" olmak üzere üç ayrı gösterim modu vardır.
 - Eski düzenlemeleri elle ya da zamanlanmış görev kullanarak arşivleyebilirsiniz.
 - Düzenleme geçmişlerini silebilir ya da eski bir düzenlemeye geri dönebilirsiniz.
-- `the-turk/flarum-quiet-edits` eklentisini destekler.
 - [css-grid](https://caniuse.com/#feat=css-grid) modülünü destekleyen bütün tarayıcılarda çalışır.
 
 ## Gereksinimler
