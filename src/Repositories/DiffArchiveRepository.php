@@ -7,6 +7,9 @@ use Illuminate\Support\Arr;
 
 class DiffArchiveRepository
 {
+    /** @var array<int, array<int, string>> */
+    protected array $contentsCache = [];
+
     /**
      * Get a new query builder.
      *
@@ -74,6 +77,7 @@ class DiffArchiveRepository
         }
 
         $query->save();
+        unset($this->contentsCache[$query->id]);
 
         return $query;
     }
@@ -89,10 +93,13 @@ class DiffArchiveRepository
      */
     public function getArchivedContent(int $archiveId, int $diffId)
     {
-        $query = $this->query()->findOrFail($archiveId);
+        if (! array_key_exists($archiveId, $this->contentsCache)) {
+            $query = $this->query()->findOrFail($archiveId);
+            $this->contentsCache[$archiveId] = $this->getContents($query->contents);
+        }
 
         return Arr::get(
-            $this->getContents($query->contents),
+            $this->contentsCache[$archiveId],
             $diffId,
             null
         );
@@ -116,7 +123,10 @@ class DiffArchiveRepository
         // so we're deleting row instead of deleting the revision
         // in archive contents.
         if (! ($newRevisionCount > 0)) {
-            return $query->delete();
+            $deleted = $query->delete();
+            unset($this->contentsCache[$archiveId]);
+
+            return $deleted;
         }
 
         // uncompress the compressed content.
@@ -131,7 +141,10 @@ class DiffArchiveRepository
         // set new revision count.
         $query->revision_count = $newRevisionCount;
 
-        return $query->save();
+        $saved = $query->save();
+        unset($this->contentsCache[$archiveId]);
+
+        return $saved;
     }
 
     /**

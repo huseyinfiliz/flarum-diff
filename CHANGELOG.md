@@ -8,6 +8,9 @@
 ### Fixed
 - Use a boolean visibility check for revision deletion so authorized members and moderators can delete revisions without requiring history viewing permission.
 
+### Performance
+- Cache decoded archive contents within each repository instance and invalidate cached entries after archive writes and deletions.
+
 ### Removed
 - Remove the unavailable Quiet Edits package recommendation and legacy integration, which has no supported Flarum 2.x release (Fixes #2).
 
