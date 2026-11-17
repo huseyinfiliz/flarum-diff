@@ -44,7 +44,7 @@
     "require": {
         "php": "^8.2 || ^8.3",
         "flarum/core": "^2.0",
-        "jfcherng/php-diff": "^6.11.6",
+        "jfcherng/php-diff": "^7.0.1",
         "ext-json": "*"
     },
     "autoload": {
