@@ -189,15 +189,15 @@ export default class DiffModal extends Modal {
                       ? /* we're viewing the original content */
                         app.translator.trans('huseyinfiliz-diff.forum.rollbackToOriginalButton')
                       : this.attrs.listState.selectedItem.revision() == this.attrs.listState.post.revisionCount()
-                      ? this.comparisonBetween.old.revision != 0
-                        ? /* we're comparing this revision with current content. */
-                          app.translator.trans('huseyinfiliz-diff.forum.revertChangesButton')
-                        : /* we're comparing this revision with original content */
-                          app.translator.trans('huseyinfiliz-diff.forum.rollbackToOriginalButton')
-                      : /* we're comparing this revision with another revision */
-                        app.translator.trans('huseyinfiliz-diff.forum.rollbackButton', {
-                          number: this.attrs.listState.selectedItem.revision(),
-                        })
+                        ? this.comparisonBetween.old.revision != 0
+                          ? /* we're comparing this revision with current content. */
+                            app.translator.trans('huseyinfiliz-diff.forum.revertChangesButton')
+                          : /* we're comparing this revision with original content */
+                            app.translator.trans('huseyinfiliz-diff.forum.rollbackToOriginalButton')
+                        : /* we're comparing this revision with another revision */
+                          app.translator.trans('huseyinfiliz-diff.forum.rollbackButton', {
+                            number: this.attrs.listState.selectedItem.revision(),
+                          })
                   )
                 : ''}
 
@@ -428,18 +428,18 @@ export default class DiffModal extends Modal {
               this.comparisonBetween.old.revision == -1
                 ? app.translator.trans('huseyinfiliz-diff.forum.differences.currentContent')
                 : this.comparisonBetween.old.revision == 0
-                ? app.translator.trans('huseyinfiliz-diff.forum.differences.originalContent')
-                : app.translator.trans('huseyinfiliz-diff.forum.differences.revisionWithNumber', {
-                    number: this.comparisonBetween.old.revision,
-                  }),
+                  ? app.translator.trans('huseyinfiliz-diff.forum.differences.originalContent')
+                  : app.translator.trans('huseyinfiliz-diff.forum.differences.revisionWithNumber', {
+                      number: this.comparisonBetween.old.revision,
+                    }),
             new:
               this.comparisonBetween.new.revision == 0
                 ? app.translator.trans('huseyinfiliz-diff.forum.differences.originalContent')
                 : this.comparisonBetween.new.revision == this.attrs.listState.post.revisionCount()
-                ? app.translator.trans('huseyinfiliz-diff.forum.differences.currentContent')
-                : app.translator.trans('huseyinfiliz-diff.forum.differences.revisionWithNumber', {
-                    number: this.comparisonBetween.new.revision,
-                  }),
+                  ? app.translator.trans('huseyinfiliz-diff.forum.differences.currentContent')
+                  : app.translator.trans('huseyinfiliz-diff.forum.differences.revisionWithNumber', {
+                      number: this.comparisonBetween.new.revision,
+                    }),
           })
         )
       : extractText(
@@ -448,10 +448,10 @@ export default class DiffModal extends Modal {
               this.comparisonBetween.new.revision == 0
                 ? app.translator.trans('huseyinfiliz-diff.forum.previewMode.originalContent')
                 : this.comparisonBetween.new.revision == this.attrs.listState.post.revisionCount()
-                ? app.translator.trans('huseyinfiliz-diff.forum.previewMode.currentContent')
-                : app.translator.trans('huseyinfiliz-diff.forum.previewMode.revisionWithNumber', {
-                    number: this.comparisonBetween.new.revision,
-                  }),
+                  ? app.translator.trans('huseyinfiliz-diff.forum.previewMode.currentContent')
+                  : app.translator.trans('huseyinfiliz-diff.forum.previewMode.revisionWithNumber', {
+                      number: this.comparisonBetween.new.revision,
+                    }),
           })
         );
   }

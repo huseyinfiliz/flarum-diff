@@ -6,10 +6,13 @@ use Carbon\Carbon;
 use Flarum\Testing\integration\TestCase;
 use HuseyinFiliz\Diff\Models\DiffArchive;
 use HuseyinFiliz\Diff\Repositories\DiffArchiveRepository;
+use HuseyinFiliz\Diff\Tests\integration\CreatesArchiveFixtures;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class DiffArchiveRepositoryTest extends TestCase
 {
+    use CreatesArchiveFixtures;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -30,14 +33,18 @@ class DiffArchiveRepositoryTest extends TestCase
                 'content' => '<t>Current content</t>',
                 'created_at' => Carbon::now(),
             ]],
-            DiffArchive::class => [[
-                'id' => 1,
-                'post_id' => 1,
-                'archive_no' => 1,
-                'revision_count' => 2,
-                'contents' => gzcompress(json_encode([1 => 'First revision', 2 => 'Second revision'])),
-            ]],
         ]);
+
+        $this->createArchiveFixture([1 => 'First revision', 2 => 'Second revision']);
+    }
+
+    public function test_binary_archive_contents_can_be_read_repeatedly()
+    {
+        $archive = DiffArchive::findOrFail(1);
+        $contents = $archive->contents;
+
+        $this->assertSame($contents, $archive->contents);
+        $this->assertSame([1 => 'First revision', 2 => 'Second revision'], json_decode(gzuncompress($contents), true));
     }
 
     public function test_shared_archive_is_loaded_once_for_multiple_revision_reads()

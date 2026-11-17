@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.1.0
 
 ### Added
 - Add optional, validated edit reasons to the post editor and revision history, protected by the existing history viewing permission (Fixes #1).
@@ -12,6 +12,7 @@
 
 ### Fixed
 - Use a boolean visibility check for revision deletion so authorized members and moderators can delete revisions without requiring history viewing permission.
+- Bind compressed archive contents as binary data on PostgreSQL and support repeated reads of bytea streams.
 
 ### Performance
 - Cache decoded archive contents within each repository instance and invalidate cached entries after archive writes and deletions.
@@ -22,6 +23,17 @@
 ### Maintenance
 - Add weekly Dependabot checks for Composer, JavaScript, and GitHub Actions dependencies.
 - Standardize frontend dependency management on Yarn with a committed lockfile and Node.js 22 in CI.
+- Update `actions/checkout` to v7 and use the runner's default MySQL authentication in migration tests.
+
+### Updating
+
+This release adds a nullable `edit_reason` column to revision history. Run migrations after updating; existing revision content is preserved.
+
+```bash
+composer update huseyinfiliz/flarum-diff
+php flarum migrate
+php flarum cache:clear
+```
 
 ## 2.0.0
 
