@@ -31,7 +31,6 @@ jobs:
         run: |
           sudo systemctl start mysql
           mysql -uroot -proot -e 'CREATE DATABASE flarum_test;'
-          mysql -uroot -proot -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
 
       # ============================================
       # PHASE 1: Install Flarum 1.8 + the-turk/diff
@@ -362,7 +361,6 @@ jobs:
         run: |
           sudo systemctl start mysql
           mysql -uroot -proot -e 'CREATE DATABASE flarum_clean;'
-          mysql -uroot -proot -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
 
       - name: Create Flarum 2.x project
         run: |

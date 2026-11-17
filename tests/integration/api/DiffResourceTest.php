@@ -11,11 +11,12 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use HuseyinFiliz\Diff\Models\Diff;
-use HuseyinFiliz\Diff\Models\DiffArchive;
+use HuseyinFiliz\Diff\Tests\integration\CreatesArchiveFixtures;
 
 class DiffResourceTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+    use CreatesArchiveFixtures;
 
     protected function setUp(): void
     {
@@ -331,15 +332,7 @@ class DiffResourceTest extends TestCase
 
     protected function archiveOriginalRevision(): void
     {
-        $this->prepareDatabase([
-            DiffArchive::class => [[
-                'id' => 1,
-                'post_id' => 1,
-                'archive_no' => 1,
-                'revision_count' => 1,
-                'contents' => gzcompress(json_encode([1 => 'Public post original content'])),
-            ]],
-        ]);
+        $this->createArchiveFixture([1 => 'Public post original content']);
 
         $this->database()->table('post_edit_histories')->where('id', 1)->update(['content' => null, 'archive_id' => 1]);
     }
